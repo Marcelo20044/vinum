@@ -27,7 +27,6 @@ class Lexer {
     void tokenizeText();
     void tokenizeComment();
     void tokenizeMultilineComment();
-    static bool isHexNumber(char current);
 
 public:
     explicit Lexer(const std::string &input);
