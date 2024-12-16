@@ -3,4 +3,4 @@ project(vinum)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(vinum main.cpp)
+add_executable(vinum main.cpp compile/lexer/lexer.cpp compile/lexer/token.cpp)
