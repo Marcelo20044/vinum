@@ -37,8 +37,8 @@ std::vector<Token> Lexer::tokenize() {
     return tokens;
 }
 
-char Lexer::peek(int relativePosition) const {
-    size_t position = pos + relativePosition;
+char Lexer::peek(const int relativePosition) const {
+    const size_t position = pos + relativePosition;
     return (position >= length) ? '\0' : input[position];
 }
 
@@ -47,7 +47,7 @@ char Lexer::next() {
     return peek(0);
 }
 
-void Lexer::addToken(TokenType type, const std::string &text) {
+void Lexer::addToken(const TokenType type, const std::string &text) {
     tokens.push_back(Token{type, text});
 }
 
@@ -85,7 +85,7 @@ void Lexer::tokenizeOperator() {
     std::string buffer;
     while (true) {
         if (std::string text = buffer; !OPERATORS.contains(text + current) && !text.empty()) {
-            addToken(OPERATORS.at(text), text);
+            addToken(OPERATORS.at(text));
             return;
         }
         buffer += current;
