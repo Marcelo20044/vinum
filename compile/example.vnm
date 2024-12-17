@@ -1,0 +1,23 @@
+NORMIS = "normis"
+NERD = "nerd"
+b = "c++"
+
+fun check(a) {
+    if a == NORMIS {
+        a = "fuck"
+        toast a + " " + b
+    } else if a == NERD{
+        a = "love"
+        toast a + " " + b
+    }
+}
+
+a = NERD
+check(a)
+
+toast "\n"
+
+drink i = 1; i <= 5; i = i + 1 {
+    toast fuck(i)
+    toast "\n"
+}

@@ -1,15 +1,19 @@
 #include "conditional_expression.h"
+#include "../../../lib/string_value/string_value.h"
+#include "../../../lib/number_value/number_value.h"
 
-ConditionalExpression::ConditionalExpression(Operator operation, std::shared_ptr<Expression> expr1, std::shared_ptr<Expression> expr2)
-    : operation(operation), expr1(std::move(expr1)), expr2(std::move(expr2)) {}
+ConditionalExpression::ConditionalExpression(const Operator operation, std::shared_ptr<Expression> expr1,
+                                             std::shared_ptr<Expression> expr2)
+    : expr1(std::move(expr1)), expr2(std::move(expr2)), operation(operation) {
+}
 
 std::shared_ptr<Value> ConditionalExpression::eval() {
-    std::shared_ptr<Value> value1 = expr1->eval();
-    std::shared_ptr<Value> value2 = expr2->eval();
+    const std::shared_ptr<Value> value1 = expr1->eval();
+    const std::shared_ptr<Value> value2 = expr2->eval();
 
     double number1, number2;
 
-    if (dynamic_cast<StringValue*>(value1.get())) {
+    if (dynamic_cast<StringValue *>(value1.get())) {
         number1 = value1->asString().compare(value2->asString());
         number2 = 0;
     } else {

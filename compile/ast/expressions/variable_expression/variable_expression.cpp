@@ -1,7 +1,8 @@
 #include "variable_expression.h"
 #include <stdexcept>
 
-VariableExpression::VariableExpression(const std::string& name) : name(name) {}
+VariableExpression::VariableExpression(std::string name) : name(std::move(name)) {
+}
 
 std::shared_ptr<Value> VariableExpression::eval() {
     if (!Variables::isExists(name)) {

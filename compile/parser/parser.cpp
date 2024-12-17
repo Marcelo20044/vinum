@@ -1,29 +1,36 @@
 #include "parser.h"
-#include <stdexcept>
+#include "../ast/expressions/value_expression/value_expression.h"
 #include "../ast/expressions/unary_expression/unary_expression.h"
 #include "../ast/expressions/binary_expression/binary_expression.h"
-#include "../ast/expressions/value_expression/value_expression.h"
 #include "../ast/expressions/variable_expression/variable_expression.h"
 #include "../ast/expressions/conditional_expression/conditional_expression.h"
+#include "../ast/statements/if_statement/if_statement.h"
+#include "../ast/statements/for_statement/for_statement.h"
 #include "../ast/statements/block_statement/block_statement.h"
-#include "../ast/statements/assigment_statement/assigment_statement.h"
 #include "../ast/statements/break_statement/break_statement.h"
+#include "../ast/statements/print_statement/print_statement.h"
+#include "../ast/statements/return_statement/return_statement.h"
+#include "../ast/statements/function_statement/function_statement.h"
+#include "../ast/statements/continue_statement/continue_statement.h"
+#include "../ast/statements/assigment_statement/assigment_statement.h"
+#include "../ast/statements/function_define_statement/function_define_statement.h"
+#include <stdexcept>
 
-const Token Parser::EOF_TOKEN = Token(TokenType::EOF_TOKEN, "");
+const std::shared_ptr<Token> Parser::EOF_TOKEN = std::make_shared<Token>(Token(TokenType::EOF_TOKEN, ""));
 
 Parser::Parser(const std::vector<Token>& tokens)
     : tokens(tokens), pos(0), size(tokens.size()) {}
 
-Statement* Parser::parse() {
-    auto* result = new BlockStatement();
+std::shared_ptr<Statement> Parser::parse() {
+    auto result = std::make_shared<BlockStatement>();
     while (!match(TokenType::EOF_TOKEN)) {
         result->add(statement());
     }
     return result;
 }
 
-Statement* Parser::block() {
-    auto* block = new BlockStatement();
+std::shared_ptr<Statement> Parser::block() {
+    auto block = std::make_shared<BlockStatement>();
     consume(TokenType::LBRACE);
     while (!match(TokenType::RBRACE)) {
         block->add(statement());
@@ -31,26 +38,26 @@ Statement* Parser::block() {
     return block;
 }
 
-Statement* Parser::statementOrBlock() {
-    if (get(0).type == TokenType::LBRACE) return block();
+std::shared_ptr<Statement> Parser::statementOrBlock() {
+    if (get(0)->type == TokenType::LBRACE) return block();
     return statement();
 }
 
-Statement* Parser::statement() {
+std::shared_ptr<Statement> Parser::statement() {
     if (match(TokenType::TOAST)) {
-        return new PrintStatement(expression());
+        return std::make_shared<PrintStatement>(expression());
     }
     if (match(TokenType::IF)) {
         return ifElse();
     }
     if (match(TokenType::STOP)) {
-        return new BreakStatement();
+        return std::make_shared<BreakStatement>();
     }
     if (match(TokenType::NEXT)) {
-        return new ContinueStatement();
+        return std::make_shared<ContinueStatement>();
     }
     if (match(TokenType::SOBER)) {
-        return new ReturnStatement(expression());
+        return std::make_shared<ReturnStatement>(expression());
     }
     if (match(TokenType::DRINK)) {
         return forStatement();
@@ -58,58 +65,58 @@ Statement* Parser::statement() {
     if (match(TokenType::FUN)) {
         return functionDefine();
     }
-    if (get(0).type == TokenType::WORD && get(1).type == TokenType::LPAREN) {
-        return new FunctionStatement(function());
+    if (get(0)->type == TokenType::WORD && get(1)->type == TokenType::LPAREN) {
+        return std::make_shared<FunctionStatement>(function());
     }
     return assignmentStatement();
 }
 
-Statement* Parser::assignmentStatement() {
-    Token current = get(0);
-    if (match(TokenType::WORD) && get(0).type == TokenType::EQ) {
-        std::string variable = current.text;
+std::shared_ptr<Statement> Parser::assignmentStatement() {
+    std::shared_ptr<Token> current = get(0);
+    if (match(TokenType::WORD) && get(0)->type == TokenType::EQ) {
+        std::string variable = current->text;
         consume(TokenType::EQ);
-        return new AssignmentStatement(variable, expression());
+        return std::make_shared<AssignmentStatement>(variable, expression());
     }
     throw std::runtime_error("Unknown statement");
 }
 
-Statement* Parser::ifElse() {
-    Expression* condition = expression();
-    Statement* ifStatement = statementOrBlock();
-    Statement* elseStatement = nullptr;
+std::shared_ptr<Statement> Parser::ifElse() {
+    auto condition = expression();
+    auto ifStatement = statementOrBlock();
+    std::shared_ptr<Statement> elseStatement = nullptr;
     if (match(TokenType::ELSE)) {
         elseStatement = statementOrBlock();
     }
-    return new IfStatement(condition, ifStatement, elseStatement);
+    return std::make_shared<IfStatement>(condition, ifStatement, elseStatement);
 }
 
-Statement* Parser::forStatement() {
-    Statement* initialization = assignmentStatement();
-    consume(TokenType::COMMA);
-    Expression* termination = expression();
-    consume(TokenType::COMMA);
-    Statement* increment = assignmentStatement();
-    Statement* statement = statementOrBlock();
-    return new ForStatement(initialization, termination, increment, statement);
+std::shared_ptr<Statement> Parser::forStatement() {
+    auto initialization = assignmentStatement();
+    consume(TokenType::SEMICOLON);
+    auto termination = expression();
+    consume(TokenType::SEMICOLON);
+    auto increment = assignmentStatement();
+    auto statement = statementOrBlock();
+    return std::make_shared<ForStatement>(initialization, termination, increment, statement);
 }
 
-FunctionDefineStatement* Parser::functionDefine() {
-    std::string name = consume(TokenType::WORD).text;
+std::shared_ptr<Statement> Parser::functionDefine() {
+    std::string name = consume(TokenType::WORD)->text;
     consume(TokenType::LPAREN);
     std::vector<std::string> argNames;
     while (!match(TokenType::RPAREN)) {
-        argNames.push_back(consume(TokenType::WORD).text);
+        argNames.push_back(consume(TokenType::WORD)->text);
         match(TokenType::COMMA);
     }
-    Statement* body = statementOrBlock();
-    return new FunctionDefineStatement(name, argNames, body);
+    auto body = statementOrBlock();
+    return std::make_shared<FunctionDefineStatement>(name, argNames, body);
 }
 
-FunctionalExpression* Parser::function() {
-    std::string name = consume(TokenType::WORD).text;
+std::shared_ptr<FunctionalExpression> Parser::function() {
+    std::string name = consume(TokenType::WORD)->text;
     consume(TokenType::LPAREN);
-    auto* function = new FunctionalExpression(name);
+    auto function = std::make_shared<FunctionalExpression>(name);
     while (!match(TokenType::RPAREN)) {
         function->addArgument(expression());
         match(TokenType::COMMA);
@@ -117,54 +124,54 @@ FunctionalExpression* Parser::function() {
     return function;
 }
 
-Expression* Parser::expression() {
+std::shared_ptr<Expression> Parser::expression() {
     return logicalOr();
 }
 
-Expression* Parser::logicalOr() {
-    Expression* result = logicalAnd();
+std::shared_ptr<Expression> Parser::logicalOr() {
+    auto result = logicalAnd();
     while (match(TokenType::BARBAR)) {
-        result = new ConditionalExpression(ConditionalExpression::Operator::OR, result, logicalAnd());
+        result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::OR, result, logicalAnd());
     }
     return result;
 }
 
-Expression* Parser::logicalAnd() {
-    Expression* result = equality();
+std::shared_ptr<Expression> Parser::logicalAnd() {
+    auto result = equality();
     while (match(TokenType::AMPAMP)) {
-        result = new ConditionalExpression(ConditionalExpression::Operator::AND, result, equality());
+        result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::AND, result, equality());
     }
     return result;
 }
 
-Expression* Parser::equality() {
-    Expression* result = conditional();
+std::shared_ptr<Expression> Parser::equality() {
+    auto result = conditional();
     if (match(TokenType::EQEQ)) {
-        return new ConditionalExpression(ConditionalExpression::Operator::EQUALS, result, conditional());
+        return std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::EQUALS, result, conditional());
     }
     if (match(TokenType::EXCLEQ)) {
-        return new ConditionalExpression(ConditionalExpression::Operator::NOT_EQUALS, result, conditional());
+        return std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::NOT_EQUALS, result, conditional());
     }
     return result;
 }
 
-Expression* Parser::conditional() {
-    Expression* result = additive();
+std::shared_ptr<Expression> Parser::conditional() {
+    auto result = additive();
     while (true) {
         if (match(TokenType::LT)) {
-            result = new ConditionalExpression(ConditionalExpression::Operator::LT, result, additive());
+            result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::LT, result, additive());
             continue;
         }
         if (match(TokenType::LTEQ)) {
-            result = new ConditionalExpression(ConditionalExpression::Operator::LTEQ, result, additive());
+            result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::LTEQ, result, additive());
             continue;
         }
         if (match(TokenType::GT)) {
-            result = new ConditionalExpression(ConditionalExpression::Operator::GT, result, additive());
+            result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::GT, result, additive());
             continue;
         }
         if (match(TokenType::GTEQ)) {
-            result = new ConditionalExpression(ConditionalExpression::Operator::GTEQ, result, additive());
+            result = std::make_shared<ConditionalExpression>(ConditionalExpression::Operator::GTEQ, result, additive());
             continue;
         }
         break;
@@ -172,15 +179,15 @@ Expression* Parser::conditional() {
     return result;
 }
 
-Expression* Parser::additive() {
-    Expression* result = multiplicative();
+std::shared_ptr<Expression> Parser::additive() {
+    auto result = multiplicative();
     while (true) {
         if (match(TokenType::PLUS)) {
-            result = new BinaryExpression('+', result, multiplicative());
+            result = std::make_shared<BinaryExpression>('+', result, multiplicative());
             continue;
         }
         if (match(TokenType::MINUS)) {
-            result = new BinaryExpression('-', result, multiplicative());
+            result = std::make_shared<BinaryExpression>('-', result, multiplicative());
             continue;
         }
         break;
@@ -188,15 +195,15 @@ Expression* Parser::additive() {
     return result;
 }
 
-Expression* Parser::multiplicative() {
-    Expression* result = unary();
+std::shared_ptr<Expression> Parser::multiplicative() {
+    auto result = unary();
     while (true) {
         if (match(TokenType::STAR)) {
-            result = new BinaryExpression('*', result, unary());
+            result = std::make_shared<BinaryExpression>('*', result, unary());
             continue;
         }
         if (match(TokenType::SLASH)) {
-            result = new BinaryExpression('/', result, unary());
+            result = std::make_shared<BinaryExpression>('/', result, unary());
             continue;
         }
         break;
@@ -204,9 +211,9 @@ Expression* Parser::multiplicative() {
     return result;
 }
 
-Expression* Parser::unary() {
+std::shared_ptr<Expression> Parser::unary() {
     if (match(TokenType::MINUS)) {
-        return new UnaryExpression('-', primary());
+        return std::make_shared<UnaryExpression>('-', primary());
     }
     if (match(TokenType::PLUS)) {
         return primary();
@@ -214,45 +221,45 @@ Expression* Parser::unary() {
     return primary();
 }
 
-Expression* Parser::primary() {
-    Token current = get(0);
+std::shared_ptr<Expression> Parser::primary() {
+    std::shared_ptr<Token> current = get(0);
     if (match(TokenType::NUMBER)) {
-        return new ValueExpression(std::stod(current.text));
+        return std::make_shared<ValueExpression>(std::stod(current->text));
     }
-    if (get(0).type == TokenType::WORD && get(1).type == TokenType::LPAREN) {
+    if (get(0)->type == TokenType::WORD && get(1)->type == TokenType::LPAREN) {
         return function();
     }
     if (match(TokenType::WORD)) {
-        return new VariableExpression(current.text);
+        return std::make_shared<VariableExpression>(current->text);
     }
     if (match(TokenType::TEXT)) {
-        return new ValueExpression(current.text);
+        return std::make_shared<ValueExpression>(current->text);
     }
     if (match(TokenType::LPAREN)) {
-        Expression* result = expression();
+        auto result = expression();
         consume(TokenType::RPAREN);
         return result;
     }
     throw std::runtime_error("Unknown expression");
 }
 
-Token Parser::consume(TokenType type) {
-    Token current = get(0);
-    if (type != current.type) {
-        throw std::runtime_error("Token " + current.text + " doesn't match " + tokenTypeToString(type));
+std::shared_ptr<Token> Parser::consume(TokenType type) {
+    std::shared_ptr<Token> current = get(0);
+    if (type != current->type) {
+        throw std::runtime_error("Token " + current->text + " doesn't match expected type");
     }
     pos++;
     return current;
 }
 
 bool Parser::match(TokenType type) {
-    if (get(0).type != type) return false;
+    if (get(0)->type != type) return false;
     pos++;
     return true;
 }
 
-Token Parser::get(int relativePosition) {
+std::shared_ptr<Token> Parser::get(int relativePosition) {
     size_t position = pos + relativePosition;
     if (position >= size) return EOF_TOKEN;
-    return tokens[position];
+    return std::make_shared<Token>(tokens[position]);
 }

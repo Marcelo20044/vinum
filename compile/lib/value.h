@@ -8,6 +8,7 @@ public:
     virtual ~Value() = default;
 
     virtual double asNumber() const = 0;
+
     virtual std::string asString() const = 0;
 };
 

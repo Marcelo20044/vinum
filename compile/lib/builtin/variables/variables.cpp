@@ -1,5 +1,6 @@
 #include "variables.h"
-#include "../string_value/string_value.h"
+#include "../../string_value/string_value.h"
+#include "../../number_value/number_value.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -29,11 +30,11 @@ bool Variables::isExists(const std::string& key) {
     return variables.find(key) != variables.end();
 }
 
-Value* Variables::get(const std::string& key) {
+std::shared_ptr<Value> Variables::get(const std::string& key) {
     if (!isExists(key)) {
-        return const_cast<NumberValue*>(&NumberValue::ZERO);
+        return std::make_shared<NumberValue>(0);
     }
-    return variables[key].get();
+    return variables[key];
 }
 
 void Variables::set(const std::string& key, std::shared_ptr<Value> value) {

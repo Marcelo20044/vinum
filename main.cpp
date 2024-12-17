@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include "compile/lexer/lexer.h"
+#include "compile/lib/builtin/functions/functions.h"
+#include "compile/parser/parser.h"
 
 std::string tokenTypeToString(const TokenType type) {
     switch (type) {
@@ -53,12 +55,12 @@ void printTokens(const std::vector<Token>& tokens) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file.vinum>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
         return 1;
     }
 
     std::string filename = argv[1];
-    if (filename.substr(filename.find_last_of('.')) != ".vinum") {
+    if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
         return 1;
     }
@@ -76,14 +78,25 @@ int main(int argc, char* argv[]) {
     }
     file.close();
 
+    std::vector<Token> tokens;
+
     try {
         Lexer lexer(input);
-        std::vector<Token> tokens = lexer.tokenize();
-        printTokens(tokens);
+        tokens = lexer.tokenize();
+        // printTokens(tokens);
     } catch (const std::exception& ex) {
         std::cerr << "Lexer error: " << ex.what() << std::endl;
         return 1;
     }
 
-    return 0;
+    Functions::initialize();
+
+    try {
+        Parser parser(tokens);
+        parser.parse()->execute();
+        return 0;
+    } catch (const std::exception& ex) {
+        std::cerr << "Parser error: " << ex.what() << std::endl;
+        return 1;
+    }
 }
