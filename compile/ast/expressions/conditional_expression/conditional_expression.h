@@ -1,9 +1,8 @@
 #ifndef CONDITIONAL_EXPRESSION_H
 #define CONDITIONAL_EXPRESSION_H
 
-#include "../../ast.h"
-#include <memory>
 #include <string>
+#include "../../ast.h"
 
 class ConditionalExpression : public Expression {
 public:

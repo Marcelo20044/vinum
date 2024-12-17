@@ -2,10 +2,8 @@
 #define UNARY_EXPRESSION_H
 
 #include "../../ast.h"
-#include <memory>
 
 class UnaryExpression : public Expression {
-private:
     std::shared_ptr<Expression> expr1;
     char operation;
 

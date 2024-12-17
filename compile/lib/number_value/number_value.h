@@ -4,7 +4,6 @@
 #include "../value.h"
 
 class NumberValue : public Value {
-private:
     double value;
 
 public:

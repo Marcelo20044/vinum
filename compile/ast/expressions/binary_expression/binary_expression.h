@@ -3,12 +3,7 @@
 
 #include "../../ast.h"
 
-#include <memory>
-#include <string>
-#include <sstream>
-
 class BinaryExpression : public Expression {
-private:
     std::shared_ptr<Expression> expr1;
     std::shared_ptr<Expression> expr2;
     char operation;
