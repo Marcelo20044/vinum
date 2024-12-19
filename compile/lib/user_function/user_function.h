@@ -6,14 +6,21 @@
 #include "../../ast/ast.h"
 #include <string>
 #include <vector>
-#include <memory>
+
+struct Argument {
+    ValueType type;
+    std::string name;
+
+    Argument(ValueType type, std::string name) : type(type), name(std::move(name)) {}
+};
 
 class UserFunction : public Function {
-    std::vector<std::string> argNames;
+    ValueType returnType;
+    std::vector<std::shared_ptr<Argument>> args;
     std::shared_ptr<Statement> body;
 
 public:
-    UserFunction(const std::vector<std::string> &argNames, std::shared_ptr<Statement> body);
+    UserFunction(ValueType returnType, std::vector<std::shared_ptr<Argument>> &args, std::shared_ptr<Statement> body);
 
     int getArgsCount() const;
 

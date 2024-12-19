@@ -7,7 +7,7 @@ IfStatement::IfStatement(std::shared_ptr<Expression> expression,
 }
 
 void IfStatement::execute() {
-    if (const double result = expression->eval()->asNumber(); result != 0) {
+    if (const bool result = expression->eval()->asBoolean(); result != false) {
         ifStatement->execute();
     } else if (elseStatement != nullptr) {
         elseStatement->execute();

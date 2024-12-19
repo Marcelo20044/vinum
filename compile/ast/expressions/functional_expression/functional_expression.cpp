@@ -26,19 +26,5 @@ std::shared_ptr<Value> FunctionalExpression::eval() {
 
     std::shared_ptr<Function> function = Functions::get(name);
 
-    if (auto userFunction = std::dynamic_pointer_cast<UserFunction>(function)) {
-        if (size != userFunction->getArgsCount()) {
-            throw std::runtime_error("Argument count mismatch");
-        }
-
-        Variables::push();
-        for (size_t i = 0; i < size; ++i) {
-            Variables::set(userFunction->getArgsName(i), values[i]);
-        }
-        std::shared_ptr<Value> result = userFunction->execute(values);
-        Variables::pop();
-        return result;
-    }
-
     return function->execute(values);
 }

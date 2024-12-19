@@ -5,6 +5,7 @@ AssignmentStatement::AssignmentStatement(std::string variable, const std::shared
 }
 
 void AssignmentStatement::execute() {
-    std::shared_ptr<Value> result = expression->eval();
+    std::shared_ptr<Value> oldVal = Variables::get(variable);
+    std::shared_ptr<Value> result = Value::asType(expression->eval(), oldVal->getType());
     Variables::set(variable, result);
 }

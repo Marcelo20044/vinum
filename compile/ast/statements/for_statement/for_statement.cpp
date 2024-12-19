@@ -13,7 +13,7 @@ ForStatement::ForStatement(std::shared_ptr<Statement> initialization,
 }
 
 void ForStatement::execute() {
-    for (initialization->execute(); termination->eval()->asNumber() != 0; increment->execute()) {
+    for (initialization->execute(); termination->eval()->asBoolean() != false; increment->execute()) {
         try {
             statement->execute();
         } catch (const BreakStatement &) {

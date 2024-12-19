@@ -1,23 +1,27 @@
-NORMIS = "normis"
-NERD = "nerd"
-b = "c++"
+sdrink NORMIS = "normis"
+sdrink NERD = "nerd"
+sdrink b = "c++"
 
-fun check(a) {
-    if a == NORMIS {
+fun check(sdrink a) {
+    beef a == NORMIS {
         a = "fuck"
-        toast a + " " + b
-    } else if a == NERD{
+        toastn(a + " " + b)
+    } bells beef a == NERD{
         a = "love"
-        toast a + " " + b
+        toastn(a + " " + b)
     }
 }
 
-a = NERD
+fun pinta factorial(pinta n) {
+    beef n == 0 {
+        refill 1
+    }
+    refill n * factorial(n - 1)
+}
+
+sdrink a = NERD
 check(a)
 
-toast "\n"
-
-drink i = 1; i <= 5; i = i + 1 {
-    toast fuck(i)
-    toast "\n"
+pour pinta i = 1; i <= 5; i = i + 1 {
+    toastn(factorial(i))
 }

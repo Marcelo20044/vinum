@@ -1,6 +1,8 @@
 #include "conditional_expression.h"
+
+#include "../../../lib/boolean_value/boolean_value.h"
 #include "../../../lib/string_value/string_value.h"
-#include "../../../lib/number_value/number_value.h"
+#include "../../../lib/boolean_value//boolean_value.h"
 
 ConditionalExpression::ConditionalExpression(const Operator operation, std::shared_ptr<Expression> expr1,
                                              std::shared_ptr<Expression> expr2)
@@ -17,8 +19,8 @@ std::shared_ptr<Value> ConditionalExpression::eval() {
         number1 = value1->asString().compare(value2->asString());
         number2 = 0;
     } else {
-        number1 = value1->asNumber();
-        number2 = value2->asNumber();
+        number1 = value1->asDouble();
+        number2 = value2->asDouble();
     }
 
     bool result;
@@ -50,7 +52,7 @@ std::shared_ptr<Value> ConditionalExpression::eval() {
             break;
     }
 
-    return std::make_shared<NumberValue>(result);
+    return std::make_shared<BooleanValue>(result);
 }
 
 std::string ConditionalExpression::operatorToString(Operator op) {

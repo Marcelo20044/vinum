@@ -22,7 +22,13 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/ast/statements/return_statement/return_statement.cpp
         compile/lib/builtin/functions/functions.cpp
         compile/lib/builtin/variables/variables.cpp
-        compile/lib/number_value/number_value.cpp
+        compile/lib/double_value/double_value.cpp
         compile/lib/string_value/string_value.cpp
         compile/lib/user_function/user_function.cpp
-        compile/parser/parser.cpp)
+        compile/parser/parser.cpp
+        compile/lib/int_value/int_value.cpp
+        compile/lib/short_value/short_value.cpp
+        compile/lib/long_value/long_value.cpp
+        compile/lib/boolean_value/boolean_value.cpp
+        compile/lib/value.cpp
+        compile/ast/statements/initialization_statement/initialization_statement.cpp)

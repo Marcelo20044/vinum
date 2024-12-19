@@ -1,17 +1,14 @@
 #include "variables.h"
 #include "../../string_value/string_value.h"
-#include "../../number_value/number_value.h"
-#include <cmath>
+#include "../../double_value/double_value.h"
 #include <stdexcept>
 
 std::stack<std::unordered_map<std::string, std::shared_ptr<Value>>> Variables::stack;
 std::unordered_map<std::string, std::shared_ptr<Value>> Variables::variables;
 
 void Variables::initializeConstants() {
-    variables["PI"] = std::make_shared<NumberValue>(M_PI);
-    variables["ПИ"] = std::make_shared<NumberValue>(M_PI);
-    variables["E"] = std::make_shared<NumberValue>(M_E);
-    variables["GOLDEN_RATIO"] = std::make_shared<NumberValue>(1.618);
+    variables["PI"] = std::make_shared<DoubleValue>(M_PI);
+    variables["E"] = std::make_shared<DoubleValue>(M_E);
 }
 
 void Variables::push() {
@@ -32,11 +29,11 @@ bool Variables::isExists(const std::string& key) {
 
 std::shared_ptr<Value> Variables::get(const std::string& key) {
     if (!isExists(key)) {
-        return std::make_shared<NumberValue>(0);
+        throw std::runtime_error("Undefined variable: " + key);
     }
     return variables[key];
 }
 
 void Variables::set(const std::string& key, std::shared_ptr<Value> value) {
-    variables[key] = value;
+    variables[key] = std::move(value);
 }
