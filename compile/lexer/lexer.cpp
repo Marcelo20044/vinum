@@ -3,10 +3,12 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "../lib/value.h"
+
 const std::unordered_map<std::string, TokenType> Lexer::WORDS = {
-    {"toast", TokenType::TOAST}, {"if", TokenType::IF}, {"else", TokenType::ELSE},
-    {"drink", TokenType::DRINK}, {"stop", TokenType::STOP}, {"next", TokenType::NEXT},
-    {"fun", TokenType::FUN}, {"sober", TokenType::SOBER}
+    {"toast", TokenType::TOAST}, {"beef", TokenType::BEEF}, {"bells", TokenType::BELLS},
+    {"pour", TokenType::POUR}, {"stop", TokenType::STOP}, {"next", TokenType::NEXT},
+    {"fun", TokenType::FUN}, {"refill", TokenType::REFILL}
 };
 
 const std::unordered_map<std::string, TokenType> Lexer::OPERATORS = {
@@ -101,7 +103,9 @@ void Lexer::tokenizeWord() {
         current = next();
     }
 
-    if (WORDS.contains(word)) {
+    if (Value::typeExists(word)) {
+        addToken(TokenType::VARTYPE, word);
+    } else if (WORDS.contains(word)) {
         addToken(WORDS.at(word));
     } else {
         addToken(TokenType::WORD, word);

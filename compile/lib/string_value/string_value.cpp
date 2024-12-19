@@ -2,13 +2,50 @@
 #include <string>
 #include <sstream>
 
-StringValue::StringValue(const std::string& value) : value(value) {}
+StringValue::StringValue(std::string  value) : Value(ValueType::STRING), value(std::move(value)) {
+}
 
-double StringValue::asNumber() const {
+short StringValue::asShort() const {
+    try {
+        return static_cast<short>(std::stoi(value));
+    } catch (const std::invalid_argument&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to stopka");
+    } catch (const std::out_of_range&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to stopka: value out of bounds");
+    }
+}
+
+int StringValue::asInt() const {
+    try {
+        return std::stoi(value);
+    } catch (const std::invalid_argument&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to pinta");
+    } catch (const std::out_of_range&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to pinta: value out of bounds");
+    }
+}
+
+long StringValue::asLong() const {
+    try {
+        return std::stol(value);
+    } catch (const std::invalid_argument&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to kega");
+    } catch (const std::out_of_range&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to kega: value out of bounds");
+    }
+}
+
+bool StringValue::asBoolean() const {
+    throw std::runtime_error("Cannot convert sdrink to redbool");
+}
+
+double StringValue::asDouble() const {
     try {
         return std::stod(value);
     } catch (const std::invalid_argument&) {
-        return 0.0;
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to bubble");
+    } catch (const std::out_of_range&) {
+        throw std::runtime_error("Cannot convert sdrink \"" + value + "\" to bubble: value out of bounds");
     }
 }
 

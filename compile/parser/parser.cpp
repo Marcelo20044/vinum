@@ -16,6 +16,9 @@
 #include "../ast/statements/function_define_statement/function_define_statement.h"
 #include <stdexcept>
 
+#include "../ast/statements/initialization_statement/initialization_statement.h"
+#include "../lib/user_function/user_function.h"
+
 const std::shared_ptr<Token> Parser::EOF_TOKEN = std::make_shared<Token>(Token(TokenType::EOF_TOKEN, ""));
 
 Parser::Parser(const std::vector<Token>& tokens)
@@ -47,7 +50,7 @@ std::shared_ptr<Statement> Parser::statement() {
     if (match(TokenType::TOAST)) {
         return std::make_shared<PrintStatement>(expression());
     }
-    if (match(TokenType::IF)) {
+    if (match(TokenType::BEEF)) {
         return ifElse();
     }
     if (match(TokenType::STOP)) {
@@ -56,10 +59,10 @@ std::shared_ptr<Statement> Parser::statement() {
     if (match(TokenType::NEXT)) {
         return std::make_shared<ContinueStatement>();
     }
-    if (match(TokenType::SOBER)) {
+    if (match(TokenType::REFILL)) {
         return std::make_shared<ReturnStatement>(expression());
     }
-    if (match(TokenType::DRINK)) {
+    if (match(TokenType::POUR)) {
         return forStatement();
     }
     if (match(TokenType::FUN)) {
@@ -67,6 +70,9 @@ std::shared_ptr<Statement> Parser::statement() {
     }
     if (get(0)->type == TokenType::WORD && get(1)->type == TokenType::LPAREN) {
         return std::make_shared<FunctionStatement>(function());
+    }
+    if (get(0)->type == TokenType::VARTYPE && get(1)->type == TokenType::WORD) {
+        return initializationStatement();
     }
     return assignmentStatement();
 }
@@ -78,21 +84,29 @@ std::shared_ptr<Statement> Parser::assignmentStatement() {
         consume(TokenType::EQ);
         return std::make_shared<AssignmentStatement>(variable, expression());
     }
-    throw std::runtime_error("Unknown statement");
+    throw std::runtime_error("Unknown statement: " + current->text);
+}
+
+std::shared_ptr<Statement> Parser::initializationStatement() {
+    ValueType type = Value::getType(consume(TokenType::VARTYPE)->text);
+    std::string name = consume(TokenType::WORD)->text;
+    std::shared_ptr<Token> current = get(0);
+    consume(TokenType::EQ);
+    return std::make_shared<InitializationStatement>(type, name, expression());
 }
 
 std::shared_ptr<Statement> Parser::ifElse() {
     auto condition = expression();
     auto ifStatement = statementOrBlock();
     std::shared_ptr<Statement> elseStatement = nullptr;
-    if (match(TokenType::ELSE)) {
+    if (match(TokenType::BELLS)) {
         elseStatement = statementOrBlock();
     }
     return std::make_shared<IfStatement>(condition, ifStatement, elseStatement);
 }
 
 std::shared_ptr<Statement> Parser::forStatement() {
-    auto initialization = assignmentStatement();
+    auto initialization = initializationStatement();
     consume(TokenType::SEMICOLON);
     auto termination = expression();
     consume(TokenType::SEMICOLON);
@@ -102,15 +116,27 @@ std::shared_ptr<Statement> Parser::forStatement() {
 }
 
 std::shared_ptr<Statement> Parser::functionDefine() {
+    ValueType returnType;
+    try {
+        returnType = Value::getType(consume(TokenType::VARTYPE)->text);
+    } catch (const std::runtime_error&) {
+        returnType = ValueType::VOID;
+    }
+
     std::string name = consume(TokenType::WORD)->text;
     consume(TokenType::LPAREN);
     std::vector<std::string> argNames;
+
+    std::vector<std::shared_ptr<Argument>> args;
     while (!match(TokenType::RPAREN)) {
-        argNames.push_back(consume(TokenType::WORD)->text);
+        ValueType argType = Value::getType(consume(TokenType::VARTYPE)->text);
+        std::string argName = consume(TokenType::WORD)->text;
+        args.push_back(std::make_shared<Argument>(argType, argName));
         match(TokenType::COMMA);
     }
+
     auto body = statementOrBlock();
-    return std::make_shared<FunctionDefineStatement>(name, argNames, body);
+    return std::make_shared<FunctionDefineStatement>(name, returnType, args, body);
 }
 
 std::shared_ptr<FunctionalExpression> Parser::function() {
@@ -240,7 +266,7 @@ std::shared_ptr<Expression> Parser::primary() {
         consume(TokenType::RPAREN);
         return result;
     }
-    throw std::runtime_error("Unknown expression");
+    throw std::runtime_error("Unknown expression: " + current->text);
 }
 
 std::shared_ptr<Token> Parser::consume(TokenType type) {

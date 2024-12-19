@@ -12,13 +12,13 @@ std::string tokenTypeToString(const TokenType type) {
         case TokenType::WORD: return "WORD";
         case TokenType::TEXT: return "TEXT";
         case TokenType::TOAST: return "TOAST"; // print
-        case TokenType::IF: return "IF";
-        case TokenType::ELSE: return "ELSE";
-        case TokenType::DRINK: return "DRINK"; // for
+        case TokenType::BEEF: return "IF";
+        case TokenType::BELLS: return "ELSE";
+        case TokenType::POUR: return "DRINK"; // for
         case TokenType::STOP: return "STOP"; // break
         case TokenType::NEXT: return "NEXT"; // continue
         case TokenType::FUN: return "FUN"; // func
-        case TokenType::SOBER: return "SOBER"; // return
+        case TokenType::REFILL: return "SOBER"; // return
         case TokenType::PLUS: return "PLUS";
         case TokenType::MINUS: return "MINUS";
         case TokenType::STAR: return "STAR";

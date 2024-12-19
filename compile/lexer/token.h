@@ -2,21 +2,21 @@
 #define TOKEN_H
 
 #include <string>
-#include <utility>
 
 enum class TokenType {
     NUMBER,
     WORD,
     TEXT,
     // Keywords
+    VARTYPE,
     TOAST, // print
-    IF,
-    ELSE,
-    DRINK, // for
+    BEEF, // if
+    BELLS, // else
+    POUR, // for
     STOP, // break
     NEXT, // continue
     FUN, // func
-    SOBER, // return
+    REFILL, // return
     // Operators
     PLUS, MINUS, STAR, SLASH, EQ, EQEQ, EXCL, EXCLEQ, LT, LTEQ, GT, GTEQ,
     BAR, BARBAR, AMP, AMPAMP, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA, SEMICOLON,

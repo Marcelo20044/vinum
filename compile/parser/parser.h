@@ -26,6 +26,8 @@ class Parser {
 
     std::shared_ptr<Statement> assignmentStatement();
 
+    std::shared_ptr<Statement> initializationStatement();
+
     std::shared_ptr<Statement> ifElse();
 
     std::shared_ptr<Statement> forStatement();

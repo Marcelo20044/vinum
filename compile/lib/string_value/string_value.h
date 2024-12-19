@@ -8,9 +8,17 @@ class StringValue : public Value {
     std::string value;
 
 public:
-    explicit StringValue(const std::string &value);
+    explicit StringValue(std::string value);
 
-    double asNumber() const override;
+    short asShort() const override;
+
+    int asInt() const override;
+
+    long asLong() const override;
+
+    double asDouble() const override;
+
+    bool asBoolean() const override;
 
     std::string asString() const override;
 };
