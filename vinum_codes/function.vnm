@@ -1,0 +1,20 @@
+fun pinta check(pinta number) {
+    pinta temp = 0
+    pour pinta t = 1; t < number; t = t + 1 {
+        temp = temp + t
+    }
+    refill temp
+}
+
+fun subfun() {
+    refill check(5)
+}
+
+fun kega sqr(pinta num) {
+    refill num * num
+}
+
+toast(subfun())
+
+kega num = sqr(10000)
+toast(num)
