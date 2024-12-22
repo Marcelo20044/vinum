@@ -2,6 +2,20 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/Verifier.h"
+#include "runtime/jit/jit_compiler.h"
+#include "runtime/vm/vm.h"
+
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 #include "compile/lexer/lexer.h"
@@ -11,44 +25,46 @@
 #include <iostream>
 #include <llvm/IR/Module.h>
 
-std::string tokenTypeToString(const TokenType type) {
-    switch (type) {
-        case TokenType::NUMBER: return "NUMBER";
-        case TokenType::WORD: return "WORD";
-        case TokenType::TEXT: return "TEXT";
-        case TokenType::TOAST: return "TOAST"; // print
-        case TokenType::BEEF: return "IF";
-        case TokenType::BELLS: return "ELSE";
-        case TokenType::POUR: return "DRINK"; // for
-        case TokenType::STOP: return "STOP"; // break
-        case TokenType::NEXT: return "NEXT"; // continue
-        case TokenType::FUN: return "FUN"; // func
-        case TokenType::REFILL: return "SOBER"; // return
-        case TokenType::PLUS: return "PLUS";
-        case TokenType::MINUS: return "MINUS";
-        case TokenType::STAR: return "STAR";
-        case TokenType::SLASH: return "SLASH";
-        case TokenType::EQ: return "EQ";
-        case TokenType::EQEQ: return "EQEQ";
-        case TokenType::EXCL: return "EXCL";
-        case TokenType::EXCLEQ: return "EXCLEQ";
-        case TokenType::LT: return "LT";
-        case TokenType::LTEQ: return "LTEQ";
-        case TokenType::GT: return "GT";
-        case TokenType::GTEQ: return "GTEQ";
-        case TokenType::BAR: return "BAR";
-        case TokenType::BARBAR: return "BARBAR";
-        case TokenType::AMP: return "AMP";
-        case TokenType::AMPAMP: return "AMPAMP";
-        case TokenType::LPAREN: return "LPAREN";
-        case TokenType::RPAREN: return "RPAREN";
-        case TokenType::LBRACKET: return "LBRACKET";
-        case TokenType::RBRACKET: return "RBRACKET";
-        case TokenType::LBRACE: return "LBRACE";
-        case TokenType::RBRACE: return "RBRACE";
-        case TokenType::COMMA: return "COMMA";
-        case TokenType::EOF_TOKEN: return "EOF_TOKEN";
-        default: return "UNKNOWN";
+std::string tokenTypeToString(const TokenType type)
+{
+    switch (type)
+    {
+    case TokenType::NUMBER: return "NUMBER";
+    case TokenType::WORD: return "WORD";
+    case TokenType::TEXT: return "TEXT";
+    case TokenType::TOAST: return "TOAST"; // print
+    case TokenType::BEEF: return "IF";
+    case TokenType::BELLS: return "ELSE";
+    case TokenType::POUR: return "DRINK"; // for
+    case TokenType::STOP: return "STOP"; // break
+    case TokenType::NEXT: return "NEXT"; // continue
+    case TokenType::FUN: return "FUN"; // func
+    case TokenType::REFILL: return "SOBER"; // return
+    case TokenType::PLUS: return "PLUS";
+    case TokenType::MINUS: return "MINUS";
+    case TokenType::STAR: return "STAR";
+    case TokenType::SLASH: return "SLASH";
+    case TokenType::EQ: return "EQ";
+    case TokenType::EQEQ: return "EQEQ";
+    case TokenType::EXCL: return "EXCL";
+    case TokenType::EXCLEQ: return "EXCLEQ";
+    case TokenType::LT: return "LT";
+    case TokenType::LTEQ: return "LTEQ";
+    case TokenType::GT: return "GT";
+    case TokenType::GTEQ: return "GTEQ";
+    case TokenType::BAR: return "BAR";
+    case TokenType::BARBAR: return "BARBAR";
+    case TokenType::AMP: return "AMP";
+    case TokenType::AMPAMP: return "AMPAMP";
+    case TokenType::LPAREN: return "LPAREN";
+    case TokenType::RPAREN: return "RPAREN";
+    case TokenType::LBRACKET: return "LBRACKET";
+    case TokenType::RBRACKET: return "RBRACKET";
+    case TokenType::LBRACE: return "LBRACE";
+    case TokenType::RBRACE: return "RBRACE";
+    case TokenType::COMMA: return "COMMA";
+    case TokenType::EOF_TOKEN: return "EOF_TOKEN";
+    default: return "UNKNOWN";
     }
 }
 
@@ -58,6 +74,7 @@ void printTokens(const std::vector<Token>& tokens) {
     }
 }
 
+/*
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
@@ -118,4 +135,30 @@ int main(int argc, char* argv[]) {
         std::cerr << "Generator error: " << ex.what() << std::endl;
         return 1;
     }
+}
+*/
+
+
+int main()
+{
+    std::string functionName = "main";
+    std::string irs[] = {
+    };
+
+
+    for (const auto& ir : irs)
+    {
+        VM vm;
+
+        if (!vm.loadIR(ir))
+        {
+            std::cerr << "Failed to load IR from file: " << ir << "\n";
+            return 1;
+        }
+        vm.execute(functionName);
+
+        std::cout << std::endl << std::endl;
+    }
+
+    return 0;
 }

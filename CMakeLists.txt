@@ -37,10 +37,12 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
 include_directories(/opt/homebrew/opt/llvm/include)
 # include_directories(/opt/homebrew/opt/bdw-gc/include)
 
-# Указать путь к библиотекам
 link_directories(/opt/homebrew/opt/llvm/lib)
 # link_directories(/opt/homebrew/opt/bdw-gc/lib)
 
-# Добавить нужные библиотеки
-target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib)
-# target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libgc.1.dylib)
+target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib
+        compile/ast/statements/initialization_statement/initialization_statement.cpp
+        runtime/jit/jit_compiler.cpp
+        runtime/vm/vm.cpp
+        runtime/vm/vm.h
+        runtime/jit/jit_compiler.h)
