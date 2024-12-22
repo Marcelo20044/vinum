@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class PrintStatement : public Statement {
+public:
     std::shared_ptr<Expression> expression;
 
 public:

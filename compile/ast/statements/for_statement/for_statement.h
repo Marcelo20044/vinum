@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class ForStatement : public Statement {
+public:
     std::shared_ptr<Statement> initialization;
     std::shared_ptr<Expression> termination;
     std::shared_ptr<Statement> increment;

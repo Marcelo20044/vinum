@@ -17,7 +17,7 @@ public:
         OR
     };
 
-private:
+public:
     std::shared_ptr<Expression> expr1;
     std::shared_ptr<Expression> expr2;
     Operator operation;

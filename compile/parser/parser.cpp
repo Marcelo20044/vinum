@@ -24,7 +24,7 @@ const std::shared_ptr<Token> Parser::EOF_TOKEN = std::make_shared<Token>(Token(T
 Parser::Parser(const std::vector<Token>& tokens)
     : tokens(tokens), pos(0), size(tokens.size()) {}
 
-std::shared_ptr<Statement> Parser::parse() {
+std::shared_ptr<BlockStatement> Parser::parse() {
     auto result = std::make_shared<BlockStatement>();
     while (!match(TokenType::EOF_TOKEN)) {
         result->add(statement());
@@ -250,8 +250,25 @@ std::shared_ptr<Expression> Parser::unary() {
 std::shared_ptr<Expression> Parser::primary() {
     std::shared_ptr<Token> current = get(0);
     if (match(TokenType::NUMBER)) {
-        return std::make_shared<ValueExpression>(std::stod(current->text));
+        const std::string& text = current->text;
+
+        if (text.find('.') == std::string::npos && text.find('e') == std::string::npos && text.find('E') == std::string::npos) {
+            try {
+                int intValue = std::stoi(text);
+                return std::make_shared<ValueExpression>(intValue);
+            } catch (const std::out_of_range&) {
+
+            }
+        }
+
+        try {
+            double doubleValue = std::stod(text);
+            return std::make_shared<ValueExpression>(doubleValue);
+        } catch (const std::invalid_argument&) {
+            throw std::runtime_error("Invalid number format: " + text);
+        }
     }
+
     if (get(0)->type == TokenType::WORD && get(1)->type == TokenType::LPAREN) {
         return function();
     }

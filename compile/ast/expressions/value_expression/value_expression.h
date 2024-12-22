@@ -5,14 +5,17 @@
 #include "../../ast.h"
 
 class ValueExpression : public Expression {
-    std::shared_ptr<Value> value;
 
 public:
     explicit ValueExpression(double value);
 
     explicit ValueExpression(const std::string &value);
 
+    explicit ValueExpression(int value);
+
     std::shared_ptr<Value> eval() override;
+
+    std::shared_ptr<Value> value;
 };
 
 #endif // VALUE_EXPRESSION_H

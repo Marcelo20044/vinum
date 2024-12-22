@@ -9,3 +9,7 @@ void BlockStatement::execute() {
         statement->execute();
     }
 }
+
+std::vector<std::shared_ptr<Statement>> BlockStatement::getStatements() {
+    return this->statements;
+}

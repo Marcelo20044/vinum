@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class InitializationStatement : public Statement {
+public:
     ValueType varType;
     std::string varName;
     std::shared_ptr<Expression> expression;
