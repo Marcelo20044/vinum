@@ -1,0 +1,26 @@
+pinta a = 10
+pinta b = 20
+
+sdrink str = "Сложение: "
+toast(str)
+toast(a + b)
+
+toast("Вычитание: ")
+toast(a - b)
+
+toast("Умножение: ")
+toast(a * b)
+
+toast("Деление: ")
+toast(a / b)
+
+toast("Остаток: ")
+toast(a % b)
+
+pinta c = a + b - (2 * b) + (a * a * a) / ((b + 2) % a)
+toast("Много операций: ")
+toast(c)
+
+kega big_num = 2147483647
+toast("Переполнение: ")
+toast(big_num + 1)
