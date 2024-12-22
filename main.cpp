@@ -74,14 +74,30 @@ void printTokens(const std::vector<Token>& tokens) {
     }
 }
 
-/*
-int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
-        return 1;
-    }
 
-    std::string filename = argv[1];
+void vm_exec(std::string IRFile)
+{
+    std::string functionName = "main";
+
+    VM vm;
+
+    if (!vm.loadIR(IRFile))
+    {
+        std::cerr << "Failed to load IR from file: " << IRFile << "\n";
+    }
+    vm.execute(functionName);
+}
+
+
+int main(int argc, char* argv[]) {
+    // if (argc < 2) {
+    //     std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
+    //     return 1;
+    // }
+
+    // std::string filename = argv[1];
+    std::string filename = "../vinum_codes/recurcion.vnm";
+
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
         return 1;
@@ -118,7 +134,7 @@ int main(int argc, char* argv[]) {
     try {
         Parser parser(tokens);
         block = parser.parse();
-        block->execute();
+        // block->execute();
     } catch (const std::exception& ex) {
         std::cerr << "Parser error: " << ex.what() << std::endl;
         return 1;
@@ -135,30 +151,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Generator error: " << ex.what() << std::endl;
         return 1;
     }
+
+    vm_exec("../cmake-build-debug/output.ll");
 }
-*/
 
-
-int main()
-{
-    std::string functionName = "main";
-    std::string irs[] = {
-    };
-
-
-    for (const auto& ir : irs)
-    {
-        VM vm;
-
-        if (!vm.loadIR(ir))
-        {
-            std::cerr << "Failed to load IR from file: " << ir << "\n";
-            return 1;
-        }
-        vm.execute(functionName);
-
-        std::cout << std::endl << std::endl;
-    }
-
-    return 0;
-}

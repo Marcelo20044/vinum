@@ -1,10 +1,10 @@
-pour kega factorial(pinta n) {
-    if (n <= 1) {
+fun pinta factorial(pinta n) {
+    beef n <= 1 {
         refill 1
     }
     refill n * factorial(n - 1)
 }
 
-kega fact = factorial(20)
+pinta fact = factorial(20)
 toast("Факториал 20: ")
 toast(fact)
