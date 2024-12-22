@@ -5,6 +5,7 @@
 #include "../lexer/token.h"
 #include "../ast/ast.h"
 #include "../ast/expressions/functional_expression/functional_expression.h"
+#include "../ast/statements/block_statement/block_statement.h"
 
 class Parser {
     static const std::shared_ptr<Token> EOF_TOKEN;
@@ -57,7 +58,7 @@ class Parser {
 public:
     explicit Parser(const std::vector<Token> &tokens);
 
-    std::shared_ptr<Statement> parse();
+    std::shared_ptr<BlockStatement> parse();
 };
 
 #endif // PARSER_H

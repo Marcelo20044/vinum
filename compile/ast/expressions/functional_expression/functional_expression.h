@@ -7,6 +7,7 @@
 #include "../../../lib/function.h"
 
 class FunctionalExpression : public Expression {
+public:
     std::string name;
     std::vector<std::shared_ptr<Expression> > arguments;
 

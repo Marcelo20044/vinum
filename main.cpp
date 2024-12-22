@@ -2,9 +2,14 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/IRBuilder.h>
 #include "compile/lexer/lexer.h"
 #include "compile/lib/builtin/functions/functions.h"
 #include "compile/parser/parser.h"
+#include "compile/generator/generator.h"
+#include <iostream>
+#include <llvm/IR/Module.h>
 
 std::string tokenTypeToString(const TokenType type) {
     switch (type) {
@@ -91,12 +96,26 @@ int main(int argc, char* argv[]) {
 
     Functions::initialize();
 
+    std::shared_ptr<BlockStatement> block;
+
     try {
         Parser parser(tokens);
-        parser.parse()->execute();
-        return 0;
+        block = parser.parse();
+        block->execute();
     } catch (const std::exception& ex) {
         std::cerr << "Parser error: " << ex.what() << std::endl;
+        return 1;
+    }
+
+    llvm::LLVMContext context;
+    llvm::IRBuilder<> builder(context);
+    llvm::Module module("main_module", context);
+    Generator generator;
+
+    try {
+        generator.generateIR(block);
+    } catch (const std::exception& ex) {
+        std::cerr << "Generator error: " << ex.what() << std::endl;
         return 1;
     }
 }

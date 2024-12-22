@@ -5,6 +5,7 @@
 #include "../../ast.h"
 
 class AssignmentStatement : public Statement {
+public:
     std::string variable;
     std::shared_ptr<Expression> expression;
 

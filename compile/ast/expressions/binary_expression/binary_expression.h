@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class BinaryExpression : public Expression {
+public:
     std::shared_ptr<Expression> expr1;
     std::shared_ptr<Expression> expr2;
     char operation;

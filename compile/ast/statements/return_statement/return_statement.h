@@ -5,6 +5,7 @@
 #include "../../ast.h"
 
 class ReturnStatement : public std::runtime_error, public Statement {
+public:
     std::shared_ptr<Expression> expression;
     std::shared_ptr<Value> result;
 

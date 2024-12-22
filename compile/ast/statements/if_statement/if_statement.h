@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class IfStatement : public Statement {
+public:
     std::shared_ptr<Expression> expression;
     std::shared_ptr<Statement> ifStatement;
     std::shared_ptr<Statement> elseStatement;

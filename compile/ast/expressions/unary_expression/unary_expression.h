@@ -4,6 +4,7 @@
 #include "../../ast.h"
 
 class UnaryExpression : public Expression {
+public:
     std::shared_ptr<Expression> expr1;
     char operation;
 

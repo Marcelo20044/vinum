@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 #include "../../ast.h"
+#include "../../../lib/user_function/user_function.h"
 
 struct Argument;
 
 class FunctionDefineStatement : public Statement {
+public:
     std::string name;
     ValueType returnType;
     std::vector<std::shared_ptr<Argument> > args;
