@@ -32,7 +32,11 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/lib/boolean_value/boolean_value.cpp
         compile/lib/value.cpp
         compile/ast/statements/initialization_statement/initialization_statement.cpp
-        compile/generator/generator.cpp)
+        compile/generator/generator.cpp
+        runtime/jit/jit_compiler.cpp
+        runtime/vm/vm.cpp
+        runtime/vm/vm.h
+        runtime/jit/jit_compiler.h)
 
 include_directories(/opt/homebrew/opt/llvm/include)
 # include_directories(/opt/homebrew/opt/bdw-gc/include)
@@ -40,9 +44,4 @@ include_directories(/opt/homebrew/opt/llvm/include)
 link_directories(/opt/homebrew/opt/llvm/lib)
 # link_directories(/opt/homebrew/opt/bdw-gc/lib)
 
-target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib
-        compile/ast/statements/initialization_statement/initialization_statement.cpp
-        runtime/jit/jit_compiler.cpp
-        runtime/vm/vm.cpp
-        runtime/vm/vm.h
-        runtime/jit/jit_compiler.h)
+target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib)
