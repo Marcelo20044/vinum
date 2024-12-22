@@ -88,15 +88,17 @@ void vm_exec(std::string IRFile)
     vm.execute(functionName);
 }
 
+extern "C" void GC_init();
 
 int main(int argc, char* argv[]) {
+    GC_init();
     // if (argc < 2) {
     //     std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
     //     return 1;
     // }
 
     // std::string filename = argv[1];
-    std::string filename = "../vinum_codes/recurcion.vnm";
+    std::string filename = "../vinum_codes/testgc.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
@@ -151,6 +153,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Generator error: " << ex.what() << std::endl;
         return 1;
     }
+    llvm::sys::DynamicLibrary::LoadLibraryPermanently("libgc.so");
 
     vm_exec("../cmake-build-debug/output.ll");
 }

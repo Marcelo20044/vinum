@@ -115,7 +115,45 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
     }
 
     llvm::Value *initialValue = generateExpressionIR(stmt->expression);
-    if (!initialValue) {
+
+    if (stmt->varType == ValueType::STRING) {
+        llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+        if (!gcMallocFunc) {
+            llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+                llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+                {llvm::Type::getInt64Ty(context)},
+                false
+            );
+
+            gcMallocFunc = llvm::Function::Create(
+                gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
+        }
+        llvm::Value *stringSize = nullptr;
+
+        if (initialValue) {
+            llvm::Function *strlenFunc = module->getFunction("strlen");
+            if (!strlenFunc) {
+                llvm::FunctionType *strlenType = llvm::FunctionType::get(
+                    llvm::Type::getInt64Ty(context),
+                    {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)},                    false                                                              // Не vararg
+                );
+                strlenFunc = llvm::Function::Create(strlenType, llvm::Function::ExternalLinkage, "strlen", module.get());
+            }
+            llvm::Value *strLen = builder.CreateCall(strlenFunc, {initialValue});
+            stringSize = builder.CreateAdd(
+                strLen,
+                llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), 1));
+        } else {
+            stringSize = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), 1);
+        }
+
+        llvm::Value *gcAlloc = builder.CreateCall(gcMallocFunc, {stringSize});
+        if (initialValue) {
+            llvm::Value *srcPtr = builder.CreatePointerCast(initialValue, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
+            builder.CreateMemCpy(gcAlloc, llvm::MaybeAlign(), srcPtr, llvm::MaybeAlign(), stringSize);
+        }
+        initialValue = gcAlloc;
+    } else if (!initialValue) {
         initialValue = llvm::Constant::getNullValue(type);
     }
 
@@ -127,6 +165,7 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
     info.value = alloca;
     namedValues[stmt->varName] = info;
 }
+
 
 void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
     llvm::Value *value = generateExpressionIR(stmt->expression);
@@ -446,12 +485,28 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         if (valueExpr->value->getType() == ValueType::STRING) {
             const std::string &strValue = valueExpr->value->asString();
 
-            llvm::Constant *strConst = llvm::ConstantDataArray::getString(context, strValue);
+            // Использование Boehm GC для выделения памяти под строку
+            llvm::Type *charType = llvm::Type::getInt8Ty(context);
+            llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+            if (!gcMallocFunc) {
+                llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+                    llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+                    {llvm::Type::getInt64Ty(context)},
+                    false
+                );
 
-            llvm::AllocaInst *alloca = builder.CreateAlloca(strConst->getType(), nullptr, "str");
-            builder.CreateStore(strConst, alloca);
+                gcMallocFunc = llvm::Function::Create(
+                    gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
+            }
 
-            return builder.CreateBitCast(alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
+            llvm::Value *strLen = llvm::ConstantInt::get(context, llvm::APInt(32, strValue.size() + 1));
+            llvm::Value *mallocCall = builder.CreateCall(gcMallocFunc, {strLen}, "strAlloc");
+
+            llvm::Value *strConst = llvm::ConstantDataArray::getString(context, strValue);
+
+            builder.CreateStore(strConst, mallocCall);
+
+            return builder.CreateBitCast(mallocCall, llvm::PointerType::get(charType, 0));
         }
 
         throw std::runtime_error("Unsupported value type in ValueExpression");

@@ -38,10 +38,14 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         runtime/vm/vm.h
         runtime/jit/jit_compiler.h)
 
+
 include_directories(/opt/homebrew/opt/llvm/include)
-# include_directories(/opt/homebrew/opt/bdw-gc/include)
+include_directories(/opt/homebrew/opt/bdw-gc/include)
 
 link_directories(/opt/homebrew/opt/llvm/lib)
-# link_directories(/opt/homebrew/opt/bdw-gc/lib)
+link_directories(/opt/homebrew/opt/bdw-gc/lib)
 
 target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib)
+
+find_library(GC_LIBRARY gc REQUIRED)
+target_link_libraries(vinum ${GC_LIBRARY})

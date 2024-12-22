@@ -1,0 +1,7 @@
+fun sdrink foo() {
+    sdrink s = "Hello, World!"
+    refill s
+}
+toast(foo())
+sdrink ss = "Hello, World!2"
+toast(ss)
