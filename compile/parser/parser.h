@@ -27,6 +27,8 @@ class Parser {
 
     std::shared_ptr<Statement> assignmentStatement();
 
+    std::shared_ptr<Statement> arrayInitializationStatement();
+
     std::shared_ptr<Statement> initializationStatement();
 
     std::shared_ptr<Statement> ifElse();
@@ -52,6 +54,8 @@ class Parser {
     std::shared_ptr<Expression> multiplicative();
 
     std::shared_ptr<Expression> unary();
+
+    std::shared_ptr<Expression> arrElement();
 
     std::shared_ptr<Expression> primary();
 

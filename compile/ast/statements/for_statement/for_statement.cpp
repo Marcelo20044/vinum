@@ -13,6 +13,7 @@ ForStatement::ForStatement(std::shared_ptr<Statement> initialization,
 }
 
 void ForStatement::execute() {
+    Variables::push();
     for (initialization->execute(); termination->eval()->asBoolean() != false; increment->execute()) {
         try {
             statement->execute();
@@ -22,4 +23,5 @@ void ForStatement::execute() {
             // continue
         }
     }
+    Variables::pop();
 }

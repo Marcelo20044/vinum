@@ -18,20 +18,17 @@ std::shared_ptr<Value> BinaryExpression::eval() {
         throw std::runtime_error("Cannot evaluate redbool binary expression");
     }
 
-    if (value1->getType() == ValueType::STRING) {
+    if (value1->getType() == ValueType::ARRAY || value2->getType() == ValueType::ARRAY) {
+        throw std::runtime_error("Cannot evaluate array binary expression");
+    }
+
+    if (value1->getType() == ValueType::STRING || value2->getType() == ValueType::STRING) {
         const std::string string1 = value1->asString();
         switch (operation) {
-            case '*': {
-                const int iterations = value2->asInt();
-                std::ostringstream buffer;
-                for (int i = 0; i < iterations; ++i) {
-                    buffer << string1;
-                }
-                return std::make_shared<StringValue>(buffer.str());
-            }
             case '+':
-            default:
                 return std::make_shared<StringValue>(string1 + value2->asString());
+            default:
+                throw std::runtime_error("Unsupported sdrink operation: " + operation);
         }
     }
 

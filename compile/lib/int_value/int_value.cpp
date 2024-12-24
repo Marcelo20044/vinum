@@ -1,5 +1,6 @@
 #include "int_value.h"
 #include <string>
+#include <vector>
 
 const IntValue IntValue::ZERO(0);
 
@@ -31,4 +32,16 @@ double IntValue::asDouble() const {
 
 std::string IntValue::asString() const {
     return std::to_string(value);
+}
+
+std::vector<std::shared_ptr<Value>> IntValue::asArray() const {
+    throw std::runtime_error("Cannot convert pinta to array");
+}
+
+void IntValue::swap(Value &other) {
+    auto* otherInt = dynamic_cast<IntValue*>(&other);
+    if (!otherInt) {
+        throw std::runtime_error("Cannot swap pinta with a non-pinta value");
+    }
+    std::swap(value, otherInt->value);
 }

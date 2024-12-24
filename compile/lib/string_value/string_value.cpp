@@ -1,6 +1,7 @@
 #include "string_value.h"
 #include <string>
 #include <sstream>
+#include <vector>
 
 StringValue::StringValue(std::string  value) : Value(ValueType::STRING), value(std::move(value)) {
 }
@@ -51,4 +52,16 @@ double StringValue::asDouble() const {
 
 std::string StringValue::asString() const {
     return value;
+}
+
+std::vector<std::shared_ptr<Value>> StringValue::asArray() const {
+    throw std::runtime_error("Cannot convert sdrink to array");
+}
+
+void StringValue::swap(Value &other) {
+    auto* otherString = dynamic_cast<StringValue*>(&other);
+    if (!otherString) {
+        throw std::runtime_error("Cannot swap sdrink with a non-sdrink value");
+    }
+    std::swap(value, otherString->value);
 }

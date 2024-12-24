@@ -1,8 +1,11 @@
 #include "functions.h"
 #include "../../double_value/double_value.h"
 #include "../../int_value/int_value.h"
+#include "../../array_value/array_value.h"
 #include <cmath>
 #include <iostream>
+
+#include "../../long_value/long_value.h"
 
 class SinFunction : public Function {
 public:
@@ -27,8 +30,35 @@ class FactorialFunction : public Function {
     }
 public:
     std::shared_ptr<Value> execute(const std::vector<std::shared_ptr<Value>>& args) override {
-        if (args.size() != 1) throw std::runtime_error("One argument expected for cos");
+        if (args.size() != 1) throw std::runtime_error("One argument expected for fucktorial");
         return std::make_shared<IntValue>(factorial(args[0]->asInt()));
+    }
+};
+
+class LenFunction : public Function {
+public:
+    std::shared_ptr<Value> execute(const std::vector<std::shared_ptr<Value>>& args) override {
+        if (args.size() != 1) {
+            throw std::runtime_error("One argument expected for len");
+        }
+        const std::shared_ptr<Value>& value = args[0];
+
+        size_t len;
+        if (value->getType() == ValueType::STRING) {
+            len = value->asString().size();
+        } else if (value->getType() == ValueType::ARRAY) {
+            len = std::dynamic_pointer_cast<ArrayValue>(value)->getSize();
+        }
+        return std::make_shared<IntValue>(len);
+    }
+};
+
+class SwapFunction : public Function {
+public:
+    std::shared_ptr<Value> execute(const std::vector<std::shared_ptr<Value>>& args) override {
+        if (args.size() != 2) throw std::runtime_error("Two argument expected for bruderschaft");
+        args[0]->swap(*args[1]);
+        return std::make_shared<IntValue>(0);
     }
 };
 
@@ -60,6 +90,8 @@ void Functions::initialize() {
     functions["toast"] = std::make_shared<ToastFunction>();
     functions["toastn"] = std::make_shared<ToastnFunction>();
     functions["fucktorial"] = std::make_shared<FactorialFunction>();
+    functions["len"] = std::make_shared<LenFunction>();
+    functions["bruderschaft"] = std::make_shared<SwapFunction>();
 }
 
 bool Functions::isExists(const std::string& key) {

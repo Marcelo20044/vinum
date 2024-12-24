@@ -1,5 +1,6 @@
 #include "long_value.h"
 #include <string>
+#include <vector>
 
 const LongValue LongValue::ZERO(0);
 
@@ -34,4 +35,16 @@ double LongValue::asDouble() const {
 
 std::string LongValue::asString() const {
     return std::to_string(value);
+}
+
+std::vector<std::shared_ptr<Value>> LongValue::asArray() const {
+    throw std::runtime_error("Cannot convert kega to array");
+}
+
+void LongValue::swap(Value &other) {
+    auto* otherKega = dynamic_cast<LongValue*>(&other);
+    if (!otherKega) {
+        throw std::runtime_error("Cannot swap kega with a non-kega value");
+    }
+    std::swap(value, otherKega->value);
 }

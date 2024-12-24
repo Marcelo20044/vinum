@@ -91,14 +91,14 @@ void vm_exec(std::string IRFile)
 extern "C" void GC_init();
 
 int main(int argc, char* argv[]) {
-    GC_init();
+    // GC_init();
     // if (argc < 2) {
     //     std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
     //     return 1;
     // }
-
+    //
     // std::string filename = argv[1];
-    std::string filename = "../vinum_codes/testgc.vnm";
+    std::string filename = "/Users/markhvostenko/CLionProjects/vinum/vinum_codes/arrays.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
@@ -136,25 +136,30 @@ int main(int argc, char* argv[]) {
     try {
         Parser parser(tokens);
         block = parser.parse();
-        // block->execute();
     } catch (const std::exception& ex) {
         std::cerr << "Parser error: " << ex.what() << std::endl;
         return 1;
     }
 
-    llvm::LLVMContext context;
-    llvm::IRBuilder<> builder(context);
-    llvm::Module module("main_module", context);
-    Generator generator;
-
     try {
-        generator.generateIR(block);
+        block->execute();
     } catch (const std::exception& ex) {
-        std::cerr << "Generator error: " << ex.what() << std::endl;
-        return 1;
+        std::cerr << "Execution error: " << ex.what() << std::endl;
     }
-    llvm::sys::DynamicLibrary::LoadLibraryPermanently("libgc.so");
 
-    vm_exec("../cmake-build-debug/output.ll");
+    // llvm::LLVMContext context;
+    // llvm::IRBuilder<> builder(context);
+    // llvm::Module module("main_module", context);
+    // Generator generator;
+    //
+    // try {
+    //     generator.generateIR(block);
+    // } catch (const std::exception& ex) {
+    //     std::cerr << "Generator error: " << ex.what() << std::endl;
+    //     return 1;
+    // }
+    // llvm::sys::DynamicLibrary::LoadLibraryPermanently("libgc.so");
+    //
+    // vm_exec("../cmake-build-debug/output.ll");
 }
 

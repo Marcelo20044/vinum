@@ -1,5 +1,6 @@
 #include "short_value.h"
 #include <string>
+#include <vector>
 
 const ShortValue ShortValue::ZERO(0);
 
@@ -28,4 +29,16 @@ double ShortValue::asDouble() const {
 
 std::string ShortValue::asString() const {
     return std::to_string(value);
+}
+
+std::vector<std::shared_ptr<Value>> ShortValue::asArray() const {
+    throw std::runtime_error("Cannot convert sotopka to array");
+}
+
+void ShortValue::swap(Value &other) {
+    auto* otherShort = dynamic_cast<ShortValue*>(&other);
+    if (!otherShort) {
+        throw std::runtime_error("Cannot swap stopka with a non-stopka value");
+    }
+    std::swap(value, otherShort->value);
 }

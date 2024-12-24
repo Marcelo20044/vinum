@@ -11,12 +11,14 @@ enum class ValueType {
     DOUBLE,
     STRING,
     BOOLEAN,
+    ARRAY,
     VOID,
 };
 
 class Value {
     ValueType type;
     static const std::unordered_map<std::string, ValueType> types;
+    static const std::unordered_map<ValueType, std::string> reverseTypes;
 
 public:
     explicit Value(const ValueType type) : type(type) {
@@ -38,8 +40,16 @@ public:
 
     virtual std::string asString() const = 0;
 
+    virtual std::vector<std::shared_ptr<Value>> asArray() const = 0;
+
+    virtual void swap(Value& other) = 0;
+
     static bool typeExists(const std::string &type);
+
     static ValueType getType(const std::string &type);
+
+    static std::string getTypeString(ValueType type);
+
     static std::shared_ptr<Value> asType(std::shared_ptr<Value> value, ValueType type);
 };
 

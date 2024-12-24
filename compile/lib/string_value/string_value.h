@@ -21,6 +21,10 @@ public:
     bool asBoolean() const override;
 
     std::string asString() const override;
+
+    std::vector<std::shared_ptr<Value>> asArray() const override;
+
+    void swap(Value &other) override;
 };
 
 #endif // STRING_VALUE_H

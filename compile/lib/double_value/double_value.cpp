@@ -1,5 +1,6 @@
 #include "double_value.h"
 #include <string>
+#include <vector>
 
 const DoubleValue DoubleValue::ZERO(0);
 
@@ -39,4 +40,16 @@ double DoubleValue::asDouble() const {
 
 std::string DoubleValue::asString() const {
     return std::to_string(value);
+}
+
+std::vector<std::shared_ptr<Value>> DoubleValue::asArray() const {
+    throw std::runtime_error("Cannot convert bubble to array");
+}
+
+void DoubleValue::swap(Value &other) {
+    auto* otherDouble = dynamic_cast<DoubleValue*>(&other);
+    if (!otherDouble) {
+        throw std::runtime_error("Cannot swap bubble with a non-bubble value");
+    }
+    std::swap(value, otherDouble->value);
 }
