@@ -12,7 +12,7 @@ const std::unordered_map<std::string, TokenType> Lexer::WORDS = {
 };
 
 const std::unordered_map<std::string, TokenType> Lexer::OPERATORS = {
-    {"+", TokenType::PLUS}, {"-", TokenType::MINUS}, {"*", TokenType::STAR},
+    {"+", TokenType::PLUS}, {"-", TokenType::MINUS}, {"*", TokenType::STAR}, {"%", TokenType::REMDIV},
     {"/", TokenType::SLASH}, {"(", TokenType::LPAREN}, {")", TokenType::RPAREN},
     {"[", TokenType::LBRACKET}, {"]", TokenType::RBRACKET}, {"{", TokenType::LBRACE},
     {"}", TokenType::RBRACE}, {"=", TokenType::EQ}, {"<", TokenType::LT},
@@ -56,16 +56,36 @@ void Lexer::addToken(const TokenType type, const std::string &text) {
 void Lexer::tokenizeNumber() {
     std::string buffer;
     char current = peek(0);
-    while (std::isdigit(current)) {
+    bool hasDot = false;
+
+    while (std::isdigit(current) || current == '.') {
         if (current == '.') {
-            if (buffer.find('.') != std::string::npos) throw std::runtime_error("Invalid float number");
+            if (hasDot) throw std::runtime_error("Invalid float number");
+            hasDot = true;
         }
 
         buffer += current;
         current = next();
     }
-    addToken(TokenType::NUMBER, buffer);
+
+    if (hasDot) {
+        addToken(TokenType::DOUBLE, buffer);
+    } else {
+        try {
+            long long value = std::stoll(buffer);
+
+            if (value < std::numeric_limits<int>::min() || value > std::numeric_limits<int>::max()) {
+                addToken(TokenType::LONG, buffer);
+            } else {
+                addToken(TokenType::INT, buffer);
+            }
+        } catch (const std::out_of_range&) {
+            throw std::runtime_error("Number is too large");
+        }
+    }
 }
+
+
 
 void Lexer::tokenizeOperator() {
     char current = peek(0);
@@ -80,6 +100,12 @@ void Lexer::tokenizeOperator() {
             next();
             next();
             tokenizeMultilineComment();
+            return;
+        }
+        if (peek(1) == '%') {
+            next();
+            next();
+            tokenizeComment();
             return;
         }
     }

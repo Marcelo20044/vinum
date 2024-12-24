@@ -152,7 +152,7 @@ std::shared_ptr<Statement> Parser::forStatement() {
 std::shared_ptr<Statement> Parser::functionDefine() {
     ValueType returnType;
     if (match(TokenType::VARTYPE)) {
-        returnType = Value::getType(get(0)->text);
+        returnType = Value::getType(get(-1)->text);
     } else {
         returnType = ValueType::VOID;
     }
@@ -279,6 +279,10 @@ std::shared_ptr<Expression> Parser::multiplicative() {
             result = std::make_shared<BinaryExpression>('/', result, unary());
             continue;
         }
+        if (match(TokenType::REMDIV)) {
+            result = std::make_shared<BinaryExpression>('%', result, unary());
+            continue;
+        }
         break;
     }
     return result;
@@ -314,6 +318,20 @@ std::shared_ptr<Expression> Parser::primary() {
         } catch (const std::invalid_argument &) {
             throw std::runtime_error("Invalid number format: " + text);
         }
+    }
+
+    const std::string& text = current->text;
+    if (match(TokenType::LONG)) {
+        long long longValue = std::stol(text);
+        return std::make_shared<ValueExpression>(longValue);
+    }
+    if (match(TokenType::INT)) {
+        int intValue = std::stoi(text);
+        return std::make_shared<ValueExpression>(intValue);
+    }
+    if (match(TokenType::DOUBLE)) {
+        double doubleValue = std::stod(text);
+        return std::make_shared<ValueExpression>(doubleValue);
     }
 
     if (get(0)->type == TokenType::WORD && get(1)->type == TokenType::LPAREN) {

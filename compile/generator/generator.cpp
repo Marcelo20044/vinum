@@ -108,6 +108,30 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
         type = llvm::Type::getInt32Ty(context);
     } else if (stmt->varType == ValueType::DOUBLE) {
         type = llvm::Type::getDoubleTy(context);
+    } else if (stmt->varType == ValueType::LONG) {
+        type = llvm::Type::getInt64Ty(context);
+        auto valExpr = std::dynamic_pointer_cast<ValueExpression>(stmt->expression);
+        if (valExpr) {
+            if (valExpr->value->getType() != ValueType::LONG) {
+                valExpr->value->type = ValueType::LONG;
+            }
+            stmt->expression = valExpr;
+        }
+        if (!valExpr) {
+            auto funExpr = std::dynamic_pointer_cast<FunctionalExpression>(stmt->expression);
+            if (!funExpr) {
+                throw std::runtime_error("No no no");
+            } else {
+                for (auto &arg : funExpr->arguments)
+                {
+                    auto valArg = std::dynamic_pointer_cast<ValueExpression>(arg);
+                    if (valArg->value->getType() != ValueType::LONG) {
+                        valArg->value->type = ValueType::LONG;
+                    }
+                }
+                stmt->expression = funExpr;
+            }
+        }
     } else if (stmt->varType == ValueType::STRING) {
         type = llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0);
     } else {
@@ -185,14 +209,21 @@ void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
     llvm::Value *formatStr;
 
     if (value->getType()->isIntegerTy()) {
-        formatStr = builder.CreateGlobalStringPtr("%d\n", "intFormat");
-    } else if (value->getType()->isFloatingPointTy()) {
-        formatStr = builder.CreateGlobalStringPtr("%f\n", "floatFormat");
+        if (value->getType()->getIntegerBitWidth() == 32) {
+            formatStr = builder.CreateGlobalStringPtr("%d\n", "intFormat");
+        } else if (value->getType()->getIntegerBitWidth() == 64) {
+            formatStr = builder.CreateGlobalStringPtr("%ld\n", "longFormat");
+        } else {
+            throw std::runtime_error("Unsupported integer type for printing");
+        }
+    } else if (value->getType()->isDoubleTy()) {
+        formatStr = builder.CreateGlobalStringPtr("%f\n", "doubleFormat");
     } else if (value->getType()->isPointerTy()) {
         formatStr = builder.CreateGlobalStringPtr("%s\n", "stringFormat");
     } else {
         throw std::runtime_error("Unsupported type for printing");
     }
+
 
     builder.CreateCall(printfFunc, {formatStr, value});
 }
@@ -238,6 +269,8 @@ llvm::Type* Generator::resolveLLVMType(ValueType type) {
             return llvm::Type::getInt32Ty(context);
         case ValueType::DOUBLE:
             return llvm::Type::getDoubleTy(context);
+        case ValueType::LONG:
+            return llvm::Type::getInt64Ty(context);
         default:
             throw std::runtime_error("Unsupported variable type");
     }
@@ -314,8 +347,14 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
     llvm::Type *returnType;
     if (stmt->returnType == ValueType::INT) {
         returnType = llvm::Type::getInt32Ty(context);
+    } else if (stmt->returnType == ValueType::LONG) {
+        returnType = llvm::Type::getInt64Ty(context);
     } else if (stmt->returnType == ValueType::DOUBLE) {
         returnType = llvm::Type::getDoubleTy(context);
+    } else if (stmt->returnType == ValueType::STRING) {
+        returnType = llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0);
+    } else if (stmt->returnType == ValueType::VOID) {
+        returnType = llvm::Type::getVoidTy(context);
     } else {
         throw std::runtime_error("Unsupported return type");
     }
@@ -329,6 +368,10 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
             argTypes.push_back(llvm::Type::getInt32Ty(context));
         } else if (arg->type == ValueType::DOUBLE) {
             argTypes.push_back(llvm::Type::getDoubleTy(context));
+        } else if (arg->type == ValueType::STRING) {
+            argTypes.push_back(llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
+        } else if (arg->type == ValueType::LONG) {
+            argTypes.push_back(llvm::Type::getInt64Ty(context));
         } else {
             throw std::runtime_error("Unsupported argument type");
         }
@@ -365,7 +408,7 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
             builder.SetInsertPoint(&bb);
             if (returnType->isVoidTy()) {
                 builder.CreateRetVoid();
-            } else if (returnType->isIntegerTy(32)) {
+            } else if (returnType->isIntegerTy()) {
                 builder.CreateRet(llvm::ConstantInt::get(returnType, 0));
             } else if (returnType->isDoubleTy()) {
                 builder.CreateRet(llvm::ConstantFP::get(returnType, 0.0));
@@ -399,35 +442,35 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         auto leftValExpr = std::dynamic_pointer_cast<ValueExpression>(binExpr->expr1);
         auto rightValExpr = std::dynamic_pointer_cast<ValueExpression>(binExpr->expr2);
 
-        bool isLeftString = false;
-        bool isRightString = false;
-
-        if (leftValExpr && rightValExpr) {
-            isLeftString = leftValExpr->value->getType() == ValueType::STRING;
-            isRightString = rightValExpr->value->getType() == ValueType::STRING;
-        }
-
-        if (binExpr->operation == '+' && isLeftString && isRightString) {
-            llvm::Function *strcatFunction = module->getFunction("string_concat");
-            if (!strcatFunction) {
-                throw std::runtime_error("Function 'string_concat' is not defined in the module");
-            }
-
-            return builder.CreateCall(strcatFunction, {left, right}, "concat");
-        }
-
         switch (binExpr->operation) {
             case '+':
+                if (leftValExpr && leftValExpr->value->getType() == ValueType::DOUBLE || rightValExpr && rightValExpr->value->getType() == ValueType::DOUBLE) {
+                    return builder.CreateFAdd(left, right, "addtmp");
+                }
                 return builder.CreateAdd(left, right, "addtmp");
             case '-':
+                if (leftValExpr && leftValExpr->value->getType() == ValueType::DOUBLE || rightValExpr && rightValExpr->value->getType() == ValueType::DOUBLE) {
+                    return builder.CreateFSub(left, right, "subtmp");
+                }
                 return builder.CreateSub(left, right, "subtmp");
             case '*':
+                if (leftValExpr && leftValExpr->value->getType() == ValueType::DOUBLE || rightValExpr && rightValExpr->value->getType() == ValueType::DOUBLE) {
+                    return builder.CreateFMul(left, right, "multmp");
+                }
                 return builder.CreateMul(left, right, "multmp");
             case '/':
+                if (leftValExpr && leftValExpr->value->getType() == ValueType::DOUBLE || rightValExpr && rightValExpr->value->getType() == ValueType::DOUBLE) {
+                    return builder.CreateFDiv(left, right, "divtmp");
+                }
                 return builder.CreateSDiv(left, right, "divtmp");
+            case '%':
+                if (leftValExpr && leftValExpr->value->getType() == ValueType::DOUBLE || rightValExpr && rightValExpr->value->getType() == ValueType::DOUBLE) {
+                    return builder.CreateFRem(left, right, "remtmp");
+                }
+                return builder.CreateSRem(left, right, "remtmp");
             default:
                 throw std::runtime_error("Unsupported binary operation");
-        }
+            }
     }
 
     // Обработка унарных выражений
@@ -476,6 +519,10 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
     if (auto valueExpr = std::dynamic_pointer_cast<ValueExpression>(expr)) {
         if (valueExpr->value->getType() == ValueType::INT) {
             return llvm::ConstantInt::get(context, llvm::APInt(32, valueExpr->value->asInt()));
+        }
+
+        if (valueExpr->value->getType() == ValueType::LONG) {
+            return llvm::ConstantInt::get(context, llvm::APInt(64, valueExpr->value->asLong()));
         }
 
         if (valueExpr->value->getType() == ValueType::DOUBLE) {

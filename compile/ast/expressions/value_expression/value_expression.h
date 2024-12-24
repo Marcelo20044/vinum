@@ -13,6 +13,8 @@ public:
 
     explicit ValueExpression(int value);
 
+    explicit ValueExpression(long long value);
+
     std::shared_ptr<Value> eval() override;
 
     std::shared_ptr<Value> value;
