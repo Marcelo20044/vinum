@@ -1,0 +1,22 @@
+pinta i = 0
+pour {
+    beef i > 5 {
+        stop
+    }
+    toast(i + " ")
+    i = i + 1
+}
+
+toast("\n")
+
+i = 0
+pour i <= 5 {
+    toast(i + " ")
+    i = i + 1
+}
+
+toast("\n")
+
+pour pinta j = 0; j <= 5; j = j + 1 {
+    toast(j + " ")
+}

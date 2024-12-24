@@ -59,6 +59,8 @@ class Parser {
 
     std::shared_ptr<Expression> primary();
 
+    int countForArgs();
+
 public:
     explicit Parser(const std::vector<Token> &tokens);
 

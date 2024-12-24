@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
     // }
     //
     // std::string filename = argv[1];
+
     std::string filename = "../vinum_codes/tmp.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
