@@ -15,6 +15,7 @@
 #include "../ast/statements/assigment_statement/assigment_statement.h"
 #include "../ast/statements/function_define_statement/function_define_statement.h"
 #include <stdexcept>
+#include <llvm/ADT/PointerIntPair.h>
 
 #include "../ast/expressions/array_access_expression/array_access_expression.h"
 #include "../ast/statements/array_assignment_statement/array_assignment_statement.h"
@@ -140,6 +141,15 @@ std::shared_ptr<Statement> Parser::ifElse() {
 }
 
 std::shared_ptr<Statement> Parser::forStatement() {
+    int argsCount = countForArgs();
+    auto mockStatement = std::make_shared<BlockStatement>();
+    if (argsCount == 0) {
+        return std::make_shared<ForStatement>(mockStatement, std::make_shared<ValueExpression>(true), mockStatement, statementOrBlock());
+    }
+    if (argsCount == 1) {
+        return std::make_shared<ForStatement>(mockStatement, expression(), mockStatement, statementOrBlock());
+    }
+
     auto initialization = initializationStatement();
     consume(TokenType::SEMICOLON);
     auto termination = expression();
@@ -147,6 +157,25 @@ std::shared_ptr<Statement> Parser::forStatement() {
     auto increment = assignmentStatement();
     auto statement = statementOrBlock();
     return std::make_shared<ForStatement>(initialization, termination, increment, statement);
+}
+
+int Parser::countForArgs() {
+    int count = 0;
+    int i = 0;
+    while (get(i)->type != TokenType::LBRACE) {
+        auto token = get(i);
+        if (token->type == TokenType::EOF_TOKEN) {
+            throw std::runtime_error("Invalid for statement");
+        }
+        if (token->type == TokenType::SEMICOLON) {
+            count++;
+        }
+        i++;
+    }
+    if (i > 0) {
+        count++;
+    }
+    return count;
 }
 
 std::shared_ptr<Statement> Parser::functionDefine() {

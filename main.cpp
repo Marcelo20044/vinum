@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     // }
     //
     // std::string filename = argv[1];
-    std::string filename = "/Users/markhvostenko/CLionProjects/vinum/vinum_codes/arrays.vnm";
+    std::string filename = "/Users/markhvostenko/CLionProjects/vinum/vinum_codes/for.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
