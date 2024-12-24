@@ -1,0 +1,11 @@
+fun kega factorial(kega n) {
+    kega end = 1
+    beef n <= end {
+        refill end
+    }
+    refill n * factorial(n - end)
+}
+
+kega fact = factorial(20)
+toast("Факториал 20")
+toast(fact)

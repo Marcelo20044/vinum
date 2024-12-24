@@ -16,11 +16,13 @@ enum class ValueType {
 };
 
 class Value {
-    ValueType type;
+
     static const std::unordered_map<std::string, ValueType> types;
     static const std::unordered_map<ValueType, std::string> reverseTypes;
 
 public:
+    ValueType type;
+
     explicit Value(const ValueType type) : type(type) {
     }
 

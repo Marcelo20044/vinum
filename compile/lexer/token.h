@@ -5,6 +5,9 @@
 
 enum class TokenType {
     NUMBER,
+    INT,
+    LONG,
+    DOUBLE,
     WORD,
     TEXT,
     // Keywords
@@ -18,7 +21,7 @@ enum class TokenType {
     FUN, // func
     REFILL, // return
     // Operators
-    PLUS, MINUS, STAR, SLASH, EQ, EQEQ, EXCL, EXCLEQ, LT, LTEQ, GT, GTEQ,
+    PLUS, MINUS, STAR, SLASH, EQ, EQEQ, EXCL, EXCLEQ, LT, LTEQ, GT, GTEQ, REMDIV,
     BAR, BARBAR, AMP, AMPAMP, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA, SEMICOLON,
     EOF_TOKEN
 };

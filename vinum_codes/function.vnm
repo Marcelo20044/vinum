@@ -7,14 +7,15 @@ fun pinta check(pinta number) {
 }
 
 fun subfun() {
-    refill check(5)
+    toast("Void!")
 }
 
-fun kega sqr(pinta num) {
+fun kega sqr(kega num) {
     refill num * num
 }
 
-toast(subfun())
+subfun()
 
+toast(check(5))
 kega num = sqr(10000)
 toast(num)

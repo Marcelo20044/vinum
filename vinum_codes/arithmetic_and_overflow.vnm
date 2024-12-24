@@ -12,15 +12,12 @@ toast("Умножение: ")
 toast(a * b)
 
 toast("Деление: ")
-toast(a / b)
+toast(b / a)
 
 toast("Остаток: ")
-toast(a % b)
+toast((b + 3) % a)
 
 pinta c = a + b - (2 * b) + (a * a * a) / ((b + 2) % a)
 toast("Много операций: ")
 toast(c)
 
-kega big_num = 2147483647
-toast("Переполнение: ")
-toast(big_num + 1)
