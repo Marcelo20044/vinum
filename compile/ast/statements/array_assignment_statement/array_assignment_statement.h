@@ -15,6 +15,10 @@ public:
                              const std::shared_ptr<Expression> &expression);
 
     void execute() override;
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitArrayAssignmentStatement(this);
+    }
 };
 
 #endif // ARRAY_ASSIGNMENT_STATEMENT_H

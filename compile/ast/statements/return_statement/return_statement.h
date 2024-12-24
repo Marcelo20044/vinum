@@ -15,6 +15,10 @@ public:
     std::shared_ptr<Value> getResult() const;
 
     void execute() override;
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitReturnStatement(this);
+    }
 };
 
 #endif // RETURN_STATEMENT_H

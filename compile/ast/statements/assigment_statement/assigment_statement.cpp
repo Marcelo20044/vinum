@@ -6,6 +6,8 @@ AssignmentStatement::AssignmentStatement(std::string variable, const std::shared
 }
 
 void AssignmentStatement::execute() {
+    expression = expression->optimize();
+
     std::shared_ptr<Value> oldVal = Variables::get(variable);
     std::shared_ptr<Value> result = Value::asType(expression->eval(), oldVal->getType());
 
