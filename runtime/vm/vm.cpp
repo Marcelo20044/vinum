@@ -18,3 +18,10 @@ bool VM::loadIR(const std::string& path) const
 {
     return jitCompiler->loadIR(path);
 }
+
+extern "C" void GC_init();
+
+void VM::initGC() const
+{
+    GC_init();
+}

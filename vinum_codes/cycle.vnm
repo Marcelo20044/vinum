@@ -1,36 +1,12 @@
-pinta b
-b = 2
-pour b = 0; b < 3; b = b + 1 {
-    toast("vinum1\n")
+pour pinta b = 0; b < 5; b = b + 1 {
+    toast("vinum1")
 }
 
 toast("\n")
 
-pour kega b = 10000000; b < 40000000; b = b + 10000000 {
-    toast("vinum2\n")
+pinta b = 0
+pour b < 6 {
+    b = b + 1
+    toast(b)
 }
 
-toast("\n")
-
-pour ;; b = b + 1 {
-    beef b < 6 {
-        toast("vinum3\n")
-    } bells {
-        stop
-    }
-    toast("\n")
-}
-
-pour pinta i = 0; i < 5; i = i + 1 {
-    toast("vinum4.1\n")
-
-    pinta a = 0
-    pour redbull f = true ; f ; {
-        toast("vinum4.2\n")
-
-        a = a + 1
-        beef a >= 2 {
-            f = false
-        }
-    }
-}

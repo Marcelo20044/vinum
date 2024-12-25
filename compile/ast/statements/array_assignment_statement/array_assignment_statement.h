@@ -5,11 +5,13 @@
 #include <string>
 
 class ArrayAssignmentStatement : public Statement {
+public:
     std::string variable;
     std::shared_ptr<Expression> index;
     std::shared_ptr<Expression> expression;
 
-public:
+    std::shared_ptr<Expression> getIndex() {return index;};
+
     ArrayAssignmentStatement(std::string variable,
                              const std::shared_ptr<Expression> &index,
                              const std::shared_ptr<Expression> &expression);

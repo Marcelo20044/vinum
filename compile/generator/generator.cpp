@@ -23,6 +23,7 @@
 #include "../lib/double_value/double_value.h"
 #include "../lib/int_value/int_value.h"
 #include "../ast/statements/function_statement/function_statement.h"
+#include "../ast/expressions/array_access_expression/array_access_expression.h"
 #include <fstream>
 #include <llvm/Support/FileSystem.h>
 
@@ -78,6 +79,10 @@ void Generator::generateBlockIR(std::shared_ptr<BlockStatement> block) {
             generateIfIR(ifStmt);
         } else if (auto forStmt = std::dynamic_pointer_cast<ForStatement>(statement)) {
             generateForIR(forStmt);
+        } else if (auto arrayInitStmt = std::dynamic_pointer_cast<ArrayInitializationStatement>(statement)) {
+            generateArrayInitializationIR(arrayInitStmt);
+        } else if (auto arrayAssignStmt = std::dynamic_pointer_cast<ArrayAssignmentStatement>(statement)) {
+            generateArrayAssignmentIR(arrayAssignStmt);
         } else {
             // Добавьте обработку других типов Statement
         }
@@ -106,6 +111,11 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
 
     if (stmt->varType == ValueType::INT) {
         type = llvm::Type::getInt32Ty(context);
+//        auto valExpr = std::dynamic_pointer_cast<ValueExpression>(stmt->expression);
+//        if (valExpr->value->getType() != ValueType::LONG) {
+//            valExpr->value->type = ValueType::LONG;
+//        }
+//        stmt->expression = valExpr;
     } else if (stmt->varType == ValueType::DOUBLE) {
         type = llvm::Type::getDoubleTy(context);
     } else if (stmt->varType == ValueType::LONG) {
@@ -139,7 +149,6 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
     }
 
     llvm::Value *initialValue = generateExpressionIR(stmt->expression);
-
     if (stmt->varType == ValueType::STRING) {
         llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
         if (!gcMallocFunc) {
@@ -148,12 +157,10 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
                 {llvm::Type::getInt64Ty(context)},
                 false
             );
-
             gcMallocFunc = llvm::Function::Create(
                 gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
         }
         llvm::Value *stringSize = nullptr;
-
         if (initialValue) {
             llvm::Function *strlenFunc = module->getFunction("strlen");
             if (!strlenFunc) {
@@ -170,7 +177,6 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
         } else {
             stringSize = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), 1);
         }
-
         llvm::Value *gcAlloc = builder.CreateCall(gcMallocFunc, {stringSize});
         if (initialValue) {
             llvm::Value *srcPtr = builder.CreatePointerCast(initialValue, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
@@ -190,7 +196,6 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
     namedValues[stmt->varName] = info;
 }
 
-
 void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
     llvm::Value *value = generateExpressionIR(stmt->expression);
 
@@ -199,7 +204,7 @@ void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
     if (!printfFunc) {
         llvm::FunctionType *printfType = llvm::FunctionType::get(
                 llvm::Type::getInt32Ty(context),
-                {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)}, // Указатель на символы для строки
+                {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)},
                 true
         );
         printfFunc = llvm::Function::Create(printfType, llvm::Function::ExternalLinkage, "printf", module.get());
@@ -290,9 +295,9 @@ void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
         llvm::AllocaInst *alloca = builder.CreateAlloca(varType, nullptr, initStmt->varName);
         namedValues[initStmt->varName] = {varType, alloca};
         builder.CreateStore(initValue, alloca);
-    } else {
+    } /*else {
         throw std::runtime_error("Expected InitializationStatement in for loop");
-    }
+    }*/
 
     llvm::Value *cond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(cond, loopBB, afterBB);
@@ -310,9 +315,9 @@ void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
             throw std::runtime_error("Variable '" + incrementStmt->variable + "' not found in for loop increment");
         }
         builder.CreateStore(incrementValue, varInfo.value);
-    } else {
+    } /*else {
         throw std::runtime_error("Expected AssignmentStatement in for loop increment");
-    }
+    }*/
 
     llvm::Value *updatedCond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(updatedCond, loopBB, afterBB);
@@ -361,8 +366,7 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
 
     llvm::BasicBlock *previousBlock = builder.GetInsertBlock();
 
-    // Define argument types based on statement arguments
-    std::vector<llvm::Type*> argTypes;
+    std::vector<llvm::Type *> argTypes;
     for (auto &arg : stmt->args) {
         if (arg->type == ValueType::INT) {
             argTypes.push_back(llvm::Type::getInt32Ty(context));
@@ -372,6 +376,8 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
             argTypes.push_back(llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
         } else if (arg->type == ValueType::LONG) {
             argTypes.push_back(llvm::Type::getInt64Ty(context));
+        } else if (arg->type == ValueType::ARRAY) {
+            argTypes.push_back(llvm::PointerType::get(llvm::Type::getInt32Ty(context), 0));
         } else {
             throw std::runtime_error("Unsupported argument type");
         }
@@ -394,10 +400,19 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
     builder.SetInsertPoint(block);
 
     namedValues.clear();
+    arrayNamedValues.clear();
+    idx = 0;
     for (auto &arg : function->args()) {
         llvm::AllocaInst *alloca = builder.CreateAlloca(arg.getType(), nullptr, arg.getName());
         builder.CreateStore(&arg, alloca);
-        namedValues[arg.getName().str()] = {arg.getType(), alloca};
+
+        if (stmt->args[idx]->type == ValueType::ARRAY) {
+            //TODO: жёсткий костыль
+            arrayNamedValues[arg.getName().str()] = {llvm::ArrayType::get(llvm::Type::getInt32Ty(context), 5), llvm::Type::getInt32Ty(context), alloca};
+        } else {
+            namedValues[arg.getName().str()] = {arg.getType(), alloca};
+        }
+        ++idx;
     }
 
     generateBlockIR(std::dynamic_pointer_cast<BlockStatement>(stmt->body));
@@ -428,6 +443,109 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
         }
     }
 }
+
+void Generator::generateArrayAssignmentIR(std::shared_ptr<ArrayAssignmentStatement> &stmt) {
+    llvm::Value *indexValue = generateExpressionIR(stmt->index);
+    if (!indexValue) {
+        throw std::runtime_error("Failed to generate IR for array index");
+    }
+
+    ArrayVariableInfo arrayInfo = arrayNamedValues[stmt->variable];
+    llvm::Value *arrayPtr = arrayInfo.value;
+    llvm::Type *arrayType = arrayInfo.type;
+
+    llvm::Value *elementPtr = builder.CreateGEP(
+            arrayType,
+            arrayPtr,
+            {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), indexValue},
+            "array_elem_ptr"
+    );
+
+    llvm::Value *value = generateExpressionIR(stmt->expression);
+    if (!value) {
+        throw std::runtime_error("Failed to generate IR for assigned value");
+    }
+
+    builder.CreateStore(value, elementPtr);
+}
+
+void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializationStatement> &stmt) {
+    llvm::Type *elementType = nullptr;
+    if (stmt->elemsType == ValueType::INT) {
+        elementType = llvm::Type::getInt32Ty(context);
+    } else if (stmt->elemsType == ValueType::DOUBLE) {
+        elementType = llvm::Type::getDoubleTy(context);
+    } else {
+        throw std::runtime_error("Unsupported array element type");
+    }
+
+    llvm::Value *sizeValue = generateExpressionIR(stmt->size);
+    if (!sizeValue) {
+        throw std::runtime_error("Failed to generate IR for array size");
+    }
+
+    // Генерация вызова GC_MALLOC для аллокации массива
+    llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+    if (!gcMallocFunc) {
+        llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+        llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+            {llvm::Type::getInt64Ty(context)}, // Принимает размер как аргумент
+            false
+        );
+        gcMallocFunc = llvm::Function::Create(
+            gcMallocType,
+            llvm::Function::ExternalLinkage,
+            "GC_malloc",
+            module.get()
+        );
+    }
+
+    // Вычисление размера памяти для массива
+    llvm::Value *elementSize = llvm::ConstantInt::get(
+        llvm::Type::getInt64Ty(context),
+        elementType->getPrimitiveSizeInBits() / 8
+    );
+
+    llvm::Value *totalSize = builder.CreateMul(
+        sizeValue,
+        elementSize,
+        "total_array_size"
+    );
+
+    // Вызов GC_MALLOC
+    llvm::Value *rawMemory = builder.CreateCall(gcMallocFunc, {totalSize}, "raw_memory");
+
+    // Приведение типа: [elementType]*
+    llvm::Value *typedMemory = builder.CreateBitCast(
+        rawMemory,
+        llvm::PointerType::getUnqual(elementType),
+        "typed_memory"
+    );
+    llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, stmt->elements.size());
+
+    // Сохранение в именованном хранилище для дальнейшего использования
+    arrayNamedValues[stmt->arrName] = {arrayType, elementType, typedMemory};
+
+    // Инициализация элементов массива
+    for (size_t i = 0; i < stmt->elements.size(); ++i) {
+        llvm::Value *elementValue = generateExpressionIR(stmt->elements[i]);
+        if (!elementValue) {
+            throw std::runtime_error("Failed to generate IR for array element");
+        }
+
+        // Получение указателя на i-й элемент массива
+        llvm::Value *elementPtr = builder.CreateGEP(
+            elementType,
+            typedMemory,
+            llvm::ConstantInt::get(context, llvm::APInt(64, i)),
+            "array_elem_ptr"
+        );
+
+        // Сохранение значения в i-й элемент массива
+        builder.CreateStore(elementValue, elementPtr);
+    }
+}
+
 
 llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) {
     // Обработка бинарных выражений
@@ -541,14 +659,11 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
                     {llvm::Type::getInt64Ty(context)},
                     false
                 );
-
                 gcMallocFunc = llvm::Function::Create(
                     gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
             }
-
             llvm::Value *strLen = llvm::ConstantInt::get(context, llvm::APInt(32, strValue.size() + 1));
             llvm::Value *mallocCall = builder.CreateCall(gcMallocFunc, {strLen}, "strAlloc");
-
             llvm::Value *strConst = llvm::ConstantDataArray::getString(context, strValue);
 
             builder.CreateStore(strConst, mallocCall);
@@ -560,10 +675,34 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
     }
 
     if (auto varExpr = std::dynamic_pointer_cast<VariableExpression>(expr)) {
-        VariableInfo var = namedValues[varExpr->name];
+        if (namedValues.count(varExpr->name)) {
+            VariableInfo var = namedValues[varExpr->name];
+            if (var.value == nullptr || var.type == nullptr) {
+                throw std::runtime_error("Variable not found or uninitialized: " + varExpr->name);
+            }
 
-        return builder.CreateLoad(var.type, var.value, varExpr->name + "_load");
+            return builder.CreateLoad(var.type, var.value, varExpr->name + "_load");
+        }
+
+        if (arrayNamedValues.count(varExpr->name)) {
+            ArrayVariableInfo varArray = arrayNamedValues[varExpr->name];
+            if (varArray.value == nullptr || varArray.elementType == nullptr) {
+                throw std::runtime_error("Array variable not found or uninitialized: " + varExpr->name);
+            }
+
+            llvm::Value *elementPtr = builder.CreateGEP(
+                    varArray.type,
+                    varArray.value,
+                    {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), llvm::ConstantInt::get(context, llvm::APInt(32, 0))},
+                    varExpr->name + "_first_elem_ptr"
+            );
+
+            return builder.CreateLoad(varArray.elementType, elementPtr, varExpr->name + "_first_elem_load");
+        }
+
+        throw std::runtime_error("Variable not found: " + varExpr->name);
     }
+
 
     if (auto funcExpr = std::dynamic_pointer_cast<FunctionalExpression>(expr)) {
         llvm::Function *function = module->getFunction(funcExpr->name);
@@ -581,6 +720,27 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         }
 
         return builder.CreateCall(function, args, funcExpr->name + "_call");
+    }
+
+    if (auto arrayAccessExpr = std::dynamic_pointer_cast<ArrayAccessExpression>(expr)) {
+        llvm::Value *indexValue = generateExpressionIR(arrayAccessExpr->index);
+        if (!indexValue) {
+            throw std::runtime_error("Failed to generate IR for array index");
+        }
+
+        ArrayVariableInfo arrayInfo = arrayNamedValues[arrayAccessExpr->variable];
+        llvm::Value *arrayPtr = arrayInfo.value;
+        llvm::Type *arrayType = arrayInfo.type;
+        llvm::Type *elementType = arrayInfo.elementType;
+
+        llvm::Value *elementPtr = builder.CreateGEP(
+                arrayType,
+                arrayPtr,
+                {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), indexValue},
+                "array_elem_ptr"
+        );
+
+        return builder.CreateLoad(elementType, elementPtr, "array_elem_load");
     }
 
     throw std::runtime_error("Unsupported expression type");

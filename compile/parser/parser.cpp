@@ -193,12 +193,13 @@ std::shared_ptr<Statement> Parser::functionDefine() {
     std::vector<std::shared_ptr<Argument> > args;
     while (!match(TokenType::RPAREN)) {
         ValueType argType = Value::getType(consume(TokenType::VARTYPE)->text);
+        ValueType innerArgType = argType;
         std::string argName = consume(TokenType::WORD)->text;
         if (match(TokenType::LBRACKET)) {
             consume(TokenType::RBRACKET);
             argType = ValueType::ARRAY;
         }
-        args.push_back(std::make_shared<Argument>(argType, argName));
+        args.push_back(std::make_shared<Argument>(argType, argName, innerArgType));
         match(TokenType::COMMA);
     }
 
