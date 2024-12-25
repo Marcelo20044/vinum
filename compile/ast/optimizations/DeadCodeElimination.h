@@ -14,15 +14,15 @@ private:
     int whileStatementEliminatedCount = 0;
     int assignmentExpressionEliminatedCount = 0;
 public:
-    std::shared_ptr<node> optimize(node *node) override;
+    std::shared_ptr<node> optimize(node *node);
 
     int OptimizationsCount() const;
 
     std::string summaryInfo() const;
 
-    std::shared_ptr<node> visitIfStatement(IfStatement *s, std::unordered_map<std::string, VariableInfo> &t) override;
+    std::shared_ptr<node> visitIfStatement(IfStatement *s, std::unordered_map<std::string, VariableInfo> &t);
 
-    std::shared_ptr<node> visitBlockStatement(BlockStatement *s,  std::unordered_map<std::string, VariableInfo> &t) override;
+    std::shared_ptr<node> visitBlockStatement(BlockStatement *s,  std::unordered_map<std::string, VariableInfo> &t);
 };
 
 

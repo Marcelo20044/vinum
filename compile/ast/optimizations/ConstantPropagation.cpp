@@ -1,6 +1,7 @@
 #include "ConstantPropagation.h"
 #include "VariableInfo.h"
 #include "../visitor/visitors/VariablesGrabber.h"
+#include "../expressions/variable_expression/variable_expression.h"
 
 std::shared_ptr<node> ConstantPropagation::optimize(node *node) {
     const std::unordered_map<std::string, VariableInfo> variables;

@@ -3,6 +3,8 @@
 
 #include "../visitor/visitors/OptimizationVisitor.h"
 #include "Optimizable.h"
+#include "unordered_map"
+#include "../../lib/value.h"
 
 class ConstantPropagation : public OptimizationVisitor<std::unordered_map<std::string, Value>>, public Optimizable {
 private:
@@ -19,7 +21,7 @@ public:
 
     std::shared_ptr<node> optimize(node *node) override;
 
-    std::shared_ptr<node> visitVariableExpression(VariableExpression *s, std::unordered_map<std::string, Value> t) override;
+    std::shared_ptr<node> visitVariableExpression(VariableExpression *s, std::unordered_map<std::string, Value> t);
 };
 
 

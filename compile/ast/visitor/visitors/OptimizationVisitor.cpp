@@ -1,4 +1,21 @@
 #include "OptimizationVisitor.h"
+#include "../../statements/assigment_statement/assigment_statement.h"
+#include "../../statements/block_statement/block_statement.h"
+#include "../../statements/break_statement/break_statement.h"
+#include "../../statements/for_statement/for_statement.h"
+#include "../../statements/function_define_statement/function_define_statement.h"
+#include "../../statements/function_statement/function_statement.h"
+#include "../../statements/if_statement/if_statement.h"
+#include "../../statements/array_assignment_statement/array_assignment_statement.h"
+#include "../../statements/array_initialization_statement/array_initialization_statement.h"
+#include "../../statements/print_statement/print_statement.h"
+#include "../../statements/return_statement/return_statement.h"
+#include "../../expressions/binary_expression/binary_expression.h"
+#include "../../expressions/array_access_expression/array_access_expression.h"
+#include "../../expressions/conditional_expression/conditional_expression.h"
+#include "../../expressions/unary_expression/unary_expression.h"
+#include "../../expressions/value_expression/value_expression.h"
+#include "../../expressions/variable_expression/variable_expression.h"
 
 template<typename T>
 std::shared_ptr<node>
@@ -93,12 +110,10 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitBinaryExpression(BinaryExpres
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionalExpression(FunctionalExpression *expression, T t) {
-    auto result = std::make_shared<FunctionalExpression>(expression->name);
+    auto result = std::make_shared<FunctionalExpression>(expression);
     bool changed = false;
 
-    for (
-        const auto &argument
-            : expression->arguments) {
+    for ( const auto &argument : result->arguments) {
         auto expr = argument->accept(*this, t);
         if (expr != argument) {
             changed = true;

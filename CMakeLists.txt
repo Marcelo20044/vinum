@@ -44,24 +44,16 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/ast/statements/array_assignment_statement/array_assignment_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.cpp
-        compile/ast/visitor/visitor.h
-        compile/ast/visitor/node.h
-        compile/ast/visitor/visitors/OptimizationVisitor.cpp
-        compile/ast/visitor/visitors/OptimizationVisitor.h
-        compile/ast/ast.h
         compile/ast/optimizations/ConstantFolding.cpp
         compile/ast/optimizations/ConstantFolding.h
         compile/ast/optimizations/ConstantPropagation.cpp
         compile/ast/optimizations/ConstantPropagation.h
-        compile/ast/visitor/resultVisitor.h
+        compile/ast/optimizations/DeadCodeElimination.cpp
+        compile/ast/optimizations/DeadCodeElimination.h
         compile/ast/optimizations/Optimizable.h
         compile/ast/optimizations/VariableInfo.h
-        compile/ast/visitor/visitors/VariablesGrabber.cpp
-        compile/ast/visitor/visitors/VariablesGrabber.h
-        compile/ast/optimizations/DeadCodeElimination.cpp
-        compile/ast/optimizations/DeadCodeElimination.h)
-        compile/ast/expressions/array_access_expression/array_access_expression.h
-)
+        compile/ast/ast.h)
+
 
 include_directories(/opt/homebrew/opt/llvm/include)
 include_directories(/opt/homebrew/opt/bdw-gc/include)

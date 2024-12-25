@@ -1,4 +1,7 @@
 #include "DeadCodeElimination.h"
+#include "../expressions/variable_expression/variable_expression.h"
+#include "../statements/if_statement/if_statement.h"
+#include "../statements/block_statement/block_statement.h"
 
 std::shared_ptr<node> DeadCodeElimination::optimize(node* node) {
     auto variableInfos = VariablesGrabber::getInfo(node, true);
@@ -7,7 +10,7 @@ std::shared_ptr<node> DeadCodeElimination::optimize(node* node) {
 
 std::shared_ptr<node>
 DeadCodeElimination::visitIfStatement(IfStatement *s, std::unordered_map<std::string, VariableInfo> &t) {
-    if (auto varExpr = dynamic_cast<VariableExpression *>(s->expression)) {
+    if (auto varExpr = std::dynamic_pointer_cast<VariableExpression>(s->expression)) {
         ifStatementEliminatedCount++;
         if (s->expression->eval()->asInt() != 0) {
             return std::static_pointer_cast<node>(s->ifStatement);

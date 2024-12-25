@@ -19,11 +19,11 @@ public:
 
     static std::unordered_map<std::string, VariableInfo> getInfo(node *node, bool grabModuleConstants);
 
-    VariableInfo grabVariableInfo(std::unordered_map<std::string, VariableInfo> t, std::string variableName);
+    VariableInfo grabVariableInfo(std::unordered_map<std::string, VariableInfo> t, const std::string &variableName);
 
-    std::shared_ptr<node> visitAssignmentStatement(AssignmentStatement *statement, std::unordered_map<std::string, VariableInfo> t) override;
+    std::shared_ptr<node> visitAssignmentStatement(AssignmentStatement *statement, std::unordered_map<std::string, VariableInfo> t);
 
-    std::shared_ptr<node> visitUnaryExpression(UnaryExpression *expression, std::unordered_map<std::string, VariableInfo> t) override;
+    std::shared_ptr<node> visitUnaryExpression(UnaryExpression *expression, std::unordered_map<std::string, VariableInfo> t);
 };
 
 

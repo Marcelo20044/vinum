@@ -14,7 +14,6 @@ VariablesGrabber::visitUnaryExpression(UnaryExpression *e, std::unordered_map<st
 std::shared_ptr<node>
 VariablesGrabber::visitAssignmentStatement(AssignmentStatement *s, std::unordered_map<std::string, VariableInfo> t) {
     if (s->variable = nullptr)
-
         return OptimizationVisitor::visitAssignmentStatement(s, t);
 }
 

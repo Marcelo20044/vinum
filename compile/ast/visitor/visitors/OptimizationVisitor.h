@@ -2,6 +2,8 @@
 #define VINUM_OPTIMIZATIONVISITOR_H
 
 #include "../resultVisitor.h"
+#include "../node.h"
+#include <memory>
 
 template<typename T>
 class OptimizationVisitor : public ResultVisitor<std::shared_ptr<node>, T> {

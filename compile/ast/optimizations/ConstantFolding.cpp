@@ -1,4 +1,13 @@
 #include "ConstantFolding.h"
+#include "../../lib/value.h"
+#include "ConstantFolding.h"
+#include "../expressions/value_expression/value_expression.h"
+#include "../expressions/binary_expression/binary_expression.h"
+#include "../expressions/value_expression/value_expression.h"
+#include "../expressions/unary_expression/unary_expression.h"
+#include "../expressions/conditional_expression/conditional_expression.h"
+#include "../statements/function_define_statement/function_define_statement.h"
+
 
 std::shared_ptr<node> ConstantFolding::visitBinaryExpression(BinaryExpression *e, nullptr_t) {
     auto leftValue = std::dynamic_pointer_cast<ValueExpression>(e->expr1);

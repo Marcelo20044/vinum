@@ -2,6 +2,7 @@
 #define VINUM_OPTIMIZABLE_H
 
 #include "../visitor/node.h"
+#include <memory>
 
 class Optimizable {
 public:

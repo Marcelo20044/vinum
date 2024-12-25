@@ -9,7 +9,7 @@ class node {
 public:
     virtual ~node() = default;
 
-//    virtual std::shared_ptr<node> accept(visitor *visitor) = 0;
+    virtual std::shared_ptr<node> accept(visitor *visitor) = 0;
 
     template<typename R, typename T>
     R acceptResultVisitor(ResultVisitor<R, T> &visitor, T input) {
