@@ -5,12 +5,12 @@
 
 
 class ArrayInitializationStatement : public Statement {
+public:
     ValueType elemsType;
     std::string arrName;
     std::shared_ptr<Expression> size;
     std::vector<std::shared_ptr<Expression> > elements;
 
-    public:
     ArrayInitializationStatement(ValueType elems_type, std::string arr_name,
         const std::shared_ptr<Expression> &size, const std::vector<std::shared_ptr<Expression>> &elements);
 

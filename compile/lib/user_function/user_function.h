@@ -10,8 +10,9 @@
 struct Argument {
     ValueType type;
     std::string name;
+    ValueType innerType;
 
-    Argument(ValueType type, std::string name) : type(type), name(std::move(name)) {}
+    Argument(ValueType type, std::string name, ValueType innerType) : type(type), name(std::move(name)), innerType(innerType) {}
 };
 
 class UserFunction : public Function {

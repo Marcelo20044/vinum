@@ -1,0 +1,5 @@
+pinta arr[5] = {5, 3, 4, 2, 1}
+toast("before sort: ")
+pour pinta i = 0; i < 5; i = i + 1 {
+    toast(arr[i])
+}

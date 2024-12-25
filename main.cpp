@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
     //
     // std::string filename = argv[1];
 
-    std::string filename = "../vinum_codes/tmp.vnm";
+    std::string filename = "../vinum_codes/arrays.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;

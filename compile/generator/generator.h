@@ -15,9 +15,17 @@
 #include "../ast/statements/for_statement/for_statement.h"
 #include "../ast/statements/function_statement/function_statement.h"
 #include "../ast/statements/function_define_statement/function_define_statement.h"
+#include "../ast/statements/array_assignment_statement/array_assignment_statement.h"
+#include "../ast/statements/array_initialization_statement/array_initialization_statement.h"
 
 struct VariableInfo {
     llvm::Type* type;
+    llvm::Value* value;
+};
+
+struct ArrayVariableInfo {
+    llvm::Type* type;
+    llvm::Type* elementType;
     llvm::Value* value;
 };
 
@@ -26,6 +34,7 @@ class Generator {
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module;
     std::unordered_map<std::string, VariableInfo> namedValues;
+    std::unordered_map<std::string, ArrayVariableInfo> arrayNamedValues;
 
 public:
     Generator()
@@ -43,6 +52,8 @@ private:
     void generateForIR(std::shared_ptr<ForStatement> &stmt);
     void generateFunctionIR(std::shared_ptr<FunctionStatement> &stmt);
     void generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement> &stmt);
+    void generateArrayAssignmentIR(std::shared_ptr<ArrayAssignmentStatement> &stmt);
+    void generateArrayInitializationIR(std::shared_ptr<ArrayInitializationStatement> &stmt);
     llvm::Value *generateExpressionIR(std::shared_ptr<Expression> &expr);
     void saveToFile(const std::string &filename);
     llvm::Type* resolveLLVMType(ValueType type);
