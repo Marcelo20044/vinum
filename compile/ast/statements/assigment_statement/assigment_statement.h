@@ -13,10 +13,6 @@ public:
     AssignmentStatement(std::string variable, const std::shared_ptr<Expression> &expression);
 
     void execute() override;
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitAssignmentStatement(this);
-    }
 };
 
 #endif // ASSIGNMENT_STATEMENT_H

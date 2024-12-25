@@ -9,10 +9,6 @@ public:
     ContinueStatement();
 
     void execute() override;
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitContinueStatement(this);
-    }
 };
 
 #endif // CONTINUE_STATEMENT_H
