@@ -2,8 +2,9 @@
 #define VINUM_CONSTANTPROPAGATION_H
 
 #include "../visitor/visitors/OptimizationVisitor.h"
+#include "Optimizable.h"
 
-class ConstantPropagation : public OptimizationVisitor<std::shared_ptr<node>> {
+class ConstantPropagation : public OptimizationVisitor<std::unordered_map<std::string, Value>>, public Optimizable {
 private:
     std::unordered_map<std::string, int> propagatedVariables;
 
@@ -14,9 +15,11 @@ public:
         return static_cast<int>(propagatedVariables.size());
     }
 
-    std::shared_ptr<node> optimize(node *node);
+    std::string summaryInfo();
 
-    std::shared_ptr<node> visitVariableExpression(VariableExpression *s, std::shared_ptr<node> t) override;
+    std::shared_ptr<node> optimize(node *node) override;
+
+    std::shared_ptr<node> visitVariableExpression(VariableExpression *s, std::unordered_map<std::string, Value> t) override;
 };
 
 

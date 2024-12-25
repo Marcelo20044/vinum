@@ -1,6 +1,6 @@
 #include "ConstantFolding.h"
 
-std::shared_ptr<node> ConstantFolding::visitBinaryExpression(BinaryExpression *e, std::shared_ptr<node> t) {
+std::shared_ptr<node> ConstantFolding::visitBinaryExpression(BinaryExpression *e, nullptr_t) {
     auto leftValue = std::dynamic_pointer_cast<ValueExpression>(e->expr1);
     auto rightValue = std::dynamic_pointer_cast<ValueExpression>(e->expr2);
 
@@ -16,10 +16,10 @@ std::shared_ptr<node> ConstantFolding::visitBinaryExpression(BinaryExpression *e
         }
     }
 
-    return OptimizationVisitor<std::shared_ptr<node>>::visitBinaryExpression(e, t);
+    return OptimizationVisitor<std::shared_ptr<node>>::visitBinaryExpression(e);
 }
 
-std::shared_ptr<node> ConstantFolding::visitUnaryExpression(UnaryExpression *e, std::shared_ptr<node> t) {
+std::shared_ptr<node> ConstantFolding::visitUnaryExpression(UnaryExpression *e, nullptr_t) {
     std::shared_ptr<Expression> exprValue = std::dynamic_pointer_cast<ValueExpression>(e->expr1);
 
     if (exprValue) {
@@ -34,10 +34,10 @@ std::shared_ptr<node> ConstantFolding::visitUnaryExpression(UnaryExpression *e, 
         }
     }
 
-    return OptimizationVisitor<std::shared_ptr<node>>::visitUnaryExpression(e, t);
+    return OptimizationVisitor<std::shared_ptr<node>>::visitUnaryExpression(e, nullptr_t);
 }
 
-std::shared_ptr<node> ConstantFolding::visitConditionalExpression(ConditionalExpression *e, std::shared_ptr<node> t) {
+std::shared_ptr<node> ConstantFolding::visitConditionalExpression(ConditionalExpression *e, nullptr_t) {
     auto leftValue = std::dynamic_pointer_cast<ValueExpression>(e->expr1);
     auto rightValue = std::dynamic_pointer_cast<ValueExpression>(e->expr2);
 
@@ -53,11 +53,10 @@ std::shared_ptr<node> ConstantFolding::visitConditionalExpression(ConditionalExp
         }
     }
 
-    return OptimizationVisitor<std::shared_ptr<node>>::visitConditionalExpression(e, t);
+    return OptimizationVisitor<std::shared_ptr<node>>::visitConditionalExpression(e, nullptr_t);
 }
 
-std::shared_ptr<node>
-ConstantFolding::visitFunctionDefineStatement(FunctionDefineStatement *s, std::shared_ptr<node> t) {
-    return OptimizationVisitor<std::shared_ptr<node>>::visitFunctionDefineStatement(s, t);
+std::shared_ptr<node> ConstantFolding::visitFunctionDefineStatement(FunctionDefineStatement *s, nullptr_t) {
+    return OptimizationVisitor<std::shared_ptr<node>>::visitFunctionDefineStatement(s, nullptr_t);
 }
 

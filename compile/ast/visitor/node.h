@@ -12,13 +12,10 @@ public:
     virtual std::shared_ptr<node> accept(visitor *visitor) = 0;
 
     template<typename R, typename T>
-    R accept(ResultVisitor<R, T> &visitor, T input);
+    R acceptResultVisitor(ResultVisitor<R, T> &visitor, T input) {
+        return visitor.visit(this, input);
+    }
 };
-
-template<typename R, typename T>
-R node::accept(ResultVisitor<R, T> &visitor, T input) {
-    return nullptr;
-}
 
 
 #endif //VINUM_NODE_H

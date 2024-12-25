@@ -51,16 +51,17 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/ast/visitor/visitors/OptimizationVisitor.cpp
         compile/ast/visitor/visitors/OptimizationVisitor.h
         compile/ast/ast.h
-        compile/ast/visitor/visitors/AbstractVisitor.cpp
-        compile/ast/visitor/visitors/AbstractVisitor.h
         compile/ast/optimizations/ConstantFolding.cpp
         compile/ast/optimizations/ConstantFolding.h
         compile/ast/optimizations/ConstantPropagation.cpp
         compile/ast/optimizations/ConstantPropagation.h
-        compile/ast/visitor/resultVisitor.cpp
         compile/ast/visitor/resultVisitor.h
-        compile/ast/optimizations/Optimizable.cpp
-        compile/ast/optimizations/Optimizable.h)
+        compile/ast/optimizations/Optimizable.h
+        compile/ast/optimizations/VariableInfo.h
+        compile/ast/visitor/visitors/VariablesGrabber.cpp
+        compile/ast/visitor/visitors/VariablesGrabber.h
+        compile/ast/optimizations/DeadCodeElimination.cpp
+        compile/ast/optimizations/DeadCodeElimination.h)
 
 
 include_directories(/opt/homebrew/opt/llvm/include)

@@ -51,9 +51,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitForStatement(ForStatement *st
 
     if (init != statement->initialization || term != statement->termination || incr != statement->increment ||
         stmt != statement->statement) {
-        return
-                std::make_shared<ForStatement>(init, term, incr, stmt
-                );
+        return std::make_shared<ForStatement>(init, term, incr, stmt);
     }
 
     return std::make_shared<ForStatement>(statement, t);
@@ -63,9 +61,7 @@ template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionDefineStatement(FunctionDefineStatement *statement, T t) {
     auto body = statement->body->accept(*this, t);
     if (body != statement->body) {
-        return
-                std::make_shared<FunctionDefineStatement>(statement
-                                                                  ->name, statement->returnType, statement->args, body);
+        return std::make_shared<FunctionDefineStatement>(statement->name, statement->returnType, statement->args, body);
     }
     return std::make_shared<FunctionDefineStatement>(statement, t);
 }
@@ -89,9 +85,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitBinaryExpression(BinaryExpres
     auto optimizedRight = expression->expr2->accept(*this, t);
 
     if (optimizedLeft != expression->expr1 || optimizedRight != expression->expr2) {
-        return
-                std::make_shared<BinaryExpression>(optimizedLeft, optimizedRight
-                );
+        return std::make_shared<BinaryExpression>(optimizedLeft, optimizedRight);
     }
 
     return std::make_shared<BinaryExpression>(expression, t);
@@ -119,8 +113,7 @@ template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitReturnStatement(ReturnStatement *statement, T t) {
     auto expression = statement->expression->accept(*this, t);
     if (expression != statement->expression) {
-        return
-                std::make_shared<ReturnStatement>(expression);
+        return std::make_shared<ReturnStatement>(expression);
     }
     return std::make_shared<ReturnStatement>(statement, t);
 }
@@ -129,8 +122,7 @@ template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitPrintStatement(PrintStatement *statement, T t) {
     auto expression = statement->expression->accept(*this, t);
     if (expression != statement->expression) {
-        return
-                std::make_shared<PrintStatement>(expression);
+        return std::make_shared<PrintStatement>(expression);
     }
     return std::make_shared<PrintStatement>(statement, t);
 }
