@@ -19,17 +19,14 @@ void ArrayInitializationStatement::execute() {
 
     size_t arrSize = size->eval()->asInt();
 
+    if (elements.size() != arrSize) {
+        throw std::runtime_error("Array size mismatch");
+    }
+
     std::vector<std::shared_ptr<Value>> elems;
-    if (elements.empty()) {
-        elems = std::vector(arrSize, Value::getZeroValue(elemsType));
-    } else {
-        if (elements.size() != arrSize) {
-            throw std::runtime_error("Array size mismatch");
-        }
-        elems.reserve(elements.size());
-        for (const auto &value: elements) {
-            elems.push_back(Value::asType(value->eval(), elemsType));
-        }
+    elems.reserve(elements.size());
+    for (const auto &value: elements) {
+        elems.push_back(Value::asType(value->eval(), elemsType));
     }
 
     Variables::set(arrName, std::make_shared<ArrayValue>(ArrayValue(elemsType, elems)));

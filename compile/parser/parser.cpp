@@ -126,8 +126,22 @@ std::shared_ptr<Statement> Parser::arrayInitializationStatement() {
         consume(TokenType::RBRACE);
     }
 
+    size_t arrSize;
+    try {
+        arrSize = size->eval()->asInt();
+    } catch(...) {
+        throw std::runtime_error("Array can only be with number initialized");
+    }
+
+    if (elements.empty()) {
+        auto zeroValExpression = ValueExpression::getValExpression(Value::getZeroValue(elemsType));
+        return std::make_shared<ArrayInitializationStatement>(
+            ArrayInitializationStatement(elemsType, name, size, std::vector(arrSize, zeroValExpression))
+            );
+    }
+
     return std::make_shared<
-        ArrayInitializationStatement>(ArrayInitializationStatement(elemsType, name, size, elements));
+       ArrayInitializationStatement>(ArrayInitializationStatement(elemsType, name, size, elements));
 }
 
 std::shared_ptr<Statement> Parser::ifElse() {

@@ -15,9 +15,13 @@ public:
 
     explicit ValueExpression(long long value);
 
+    explicit ValueExpression(std::shared_ptr<Value> value);
+
     std::shared_ptr<Value> eval() override;
 
     std::shared_ptr<Value> value;
+
+    static std::shared_ptr<Expression> getValExpression(const std::shared_ptr<Value>& value);
 };
 
 #endif // VALUE_EXPRESSION_H
