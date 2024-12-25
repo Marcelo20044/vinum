@@ -21,6 +21,10 @@ public:
                             std::shared_ptr<Statement> body);
 
     void execute() override;
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitFunctionDefineStatement(this);
+    }
 };
 
 #endif // FUNCTION_DEFINE_STATEMENT_H

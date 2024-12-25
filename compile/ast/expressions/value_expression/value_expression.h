@@ -17,6 +17,10 @@ public:
 
     std::shared_ptr<Value> eval() override;
 
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitValueExpression(this);
+    }
+
     std::shared_ptr<Value> value;
 };
 

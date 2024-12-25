@@ -6,8 +6,9 @@
 #include "../../../lib/double_value/double_value.h"
 #include <stdexcept>
 
-BinaryExpression::BinaryExpression(char operation, std::shared_ptr<Expression> expr1, std::shared_ptr<Expression> expr2)
-    : expr1(std::move(expr1)), expr2(std::move(expr2)), operation(operation) {
+BinaryExpression::BinaryExpression(char operation, std::shared_ptr<Expression> expr1,
+                                   std::shared_ptr<Expression> expr2)
+        : expr1(std::move(expr1)), expr2(std::move(expr2)), operation(operation) {
 }
 
 std::shared_ptr<Value> BinaryExpression::eval() {

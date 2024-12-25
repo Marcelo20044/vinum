@@ -11,6 +11,10 @@ public:
     explicit PrintStatement(std::shared_ptr<Expression> expression);
 
     void execute() override;
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitPrintStatement(this);
+    }
 };
 
 #endif // PRINT_STATEMENT_H

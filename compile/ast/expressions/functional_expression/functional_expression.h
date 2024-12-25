@@ -19,6 +19,12 @@ public:
     void addArgument(std::shared_ptr<Expression> arg);
 
     std::shared_ptr<Value> eval() override;
+
+    std::shared_ptr<Expression> optimize() override;
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitFunctionalExpression(this);
+    }
 };
 
 #endif // FUNCTIONAL_EXPRESSION_H

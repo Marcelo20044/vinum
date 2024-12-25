@@ -2,7 +2,7 @@
 #include "../../../lib/double_value/double_value.h"
 
 UnaryExpression::UnaryExpression(const char operation, std::shared_ptr<Expression> expr1)
-    : expr1(std::move(expr1)), operation(operation) {
+        : expr1(std::move(expr1)), operation(operation) {
 }
 
 std::shared_ptr<Value> UnaryExpression::eval() {
