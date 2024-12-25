@@ -1,6 +1,7 @@
 #ifndef VINUM_VARIABLEINFO_H
 #define VINUM_VARIABLEINFO_H
 
+#include "../../lib/value.h"
 
 class VariableInfo {
 public:

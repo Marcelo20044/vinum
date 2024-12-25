@@ -6,7 +6,7 @@ std::shared_ptr<node> ConstantPropagation::optimize(node *node) {
     const std::unordered_map<std::string, VariableInfo> variables;
 
     VariablesGrabber grabber(true);
-    node->accept(grabber, variables);
+    node->acceptResultVisitor(grabber, variables);
 
     std::unordered_map<std::string, Value> candidates;
     for (const auto &entry: variables) {

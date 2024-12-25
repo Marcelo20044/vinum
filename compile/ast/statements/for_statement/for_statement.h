@@ -17,10 +17,6 @@ public:
                  std::shared_ptr<Statement> block);
 
     void execute() override;
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitForStatement(this);
-    }
 };
 
 #endif // FOR_STATEMENT_H

@@ -15,10 +15,6 @@ public:
     void execute() override;
 
     std::vector<std::shared_ptr<Statement>> getStatements();
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitBlockStatement(this);
-    }
 };
 
 #endif // BLOCK_STATEMENT_H

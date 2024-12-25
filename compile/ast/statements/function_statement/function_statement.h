@@ -12,10 +12,6 @@ public:
     explicit FunctionStatement(std::shared_ptr<FunctionalExpression> function);
 
     void execute() override;
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitFunctionStatement(this);
-    }
 };
 
 #endif // FUNCTION_STATEMENT_H

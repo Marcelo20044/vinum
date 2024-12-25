@@ -2,7 +2,6 @@
 #define IF_STATEMENT_H
 
 #include "../../ast.h"
-#include "../../visitor/visitor.h"
 
 class IfStatement : public Statement {
 public:
@@ -16,10 +15,6 @@ public:
                 std::shared_ptr<Statement> elseStatement);
 
     void execute() override;
-
-    std::shared_ptr<node> accept(visitor *visitor) override {
-        return visitor->visitIfStatement(this);
-    }
 };
 
 #endif // IF_STATEMENT_H

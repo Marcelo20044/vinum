@@ -2,14 +2,14 @@
 #define VINUM_NODE_H
 
 
-#include "visitor.h"
 #include "resultVisitor.h"
+#include "visitor.h"
 
 class node {
 public:
     virtual ~node() = default;
 
-    virtual std::shared_ptr<node> accept(visitor *visitor) = 0;
+//    virtual std::shared_ptr<node> accept(visitor *visitor) = 0;
 
     template<typename R, typename T>
     R acceptResultVisitor(ResultVisitor<R, T> &visitor, T input) {

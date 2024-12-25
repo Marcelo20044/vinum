@@ -2,8 +2,7 @@
 
 #include "../../../lib/boolean_value/boolean_value.h"
 #include "../../../lib/string_value/string_value.h"
-#include "../../../lib/boolean_value//boolean_value.h"
-#include "../value_expression/value_expression.h"
+
 
 ConditionalExpression::ConditionalExpression(const Operator operation, std::shared_ptr<Expression> expr1,
                                              std::shared_ptr<Expression> expr2)
@@ -77,54 +76,4 @@ std::string ConditionalExpression::operatorToString(Operator op) {
         default:
             return "unknown";
     }
-}
-
-std::shared_ptr<Expression> ConditionalExpression::optimize() {
-    const std::shared_ptr<Expression> left = expr1->optimize();
-    const std::shared_ptr<Expression> right = expr2->optimize();
-
-    std::shared_ptr<Expression> leftValue = std::dynamic_pointer_cast<ValueExpression>(left);
-    std::shared_ptr<Expression> rightValue = std::dynamic_pointer_cast<ValueExpression>(right);
-
-    // Constant Folding
-    if (leftValue && rightValue) {
-        std::shared_ptr<Value> foldedValue = this->eval();
-
-        if (foldedValue->getType() == ValueType::DOUBLE) {
-            return std::make_shared<ValueExpression>(foldedValue->asDouble());
-        } else if (foldedValue->getType() == ValueType::STRING) {
-            return std::make_shared<ValueExpression>(foldedValue->asString());
-        } else if (foldedValue->getType() == ValueType::INT) {
-            return std::make_shared<ValueExpression>(foldedValue->asInt());
-        }
-    }
-
-    // Dead Code Elimination
-    if (operation == Operator::AND) {
-        // x && true -> x, x && false -> false
-        if (leftValue) {
-            if (!leftValue->eval()->asBoolean()) {
-                return std::make_shared<ValueExpression>(false);
-            }
-        }
-        if (rightValue) {
-            if (!rightValue->eval()->asBoolean()) {
-                return std::make_shared<ValueExpression>(false);
-            }
-        }
-    } else if (operation == Operator::OR) {
-        //  x || true -> true, x || false -> x
-        if (leftValue) {
-            if (leftValue->eval()->asBoolean()) {
-                return std::make_shared<ValueExpression>(true);
-            }
-        }
-        if (rightValue) {
-            if (rightValue->eval()->asBoolean()) {
-                return std::make_shared<ValueExpression>(true);
-            }
-        }
-    }
-
-    return std::make_shared<ConditionalExpression>(operation, left, right);
 }

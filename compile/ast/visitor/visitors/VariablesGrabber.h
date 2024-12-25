@@ -1,9 +1,9 @@
 #ifndef VINUM_VARIABLESGRABBER_H
 #define VINUM_VARIABLESGRABBER_H
 
-#include "../optimizations/VariableInfo.h"
+#include "../../optimizations/VariableInfo.h"
 #include "OptimizationVisitor.h"
-#include "../visitor/node.h"
+#include "../../visitor/node.h"
 
 class VariablesGrabber : public OptimizationVisitor<std::unordered_map<std::string, VariableInfo>> {
 private:
@@ -17,7 +17,7 @@ public:
         this->grabModuleConstants = grabModuleConstants;
     };
 
-    static std::unordered_map<std::string, VariableInfo> getInfo(node node, bool grabModuleConstants);
+    static std::unordered_map<std::string, VariableInfo> getInfo(node *node, bool grabModuleConstants);
 
     VariableInfo grabVariableInfo(std::unordered_map<std::string, VariableInfo> t, std::string variableName);
 

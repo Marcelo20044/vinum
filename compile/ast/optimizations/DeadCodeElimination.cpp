@@ -1,5 +1,10 @@
 #include "DeadCodeElimination.h"
 
+std::shared_ptr<node> DeadCodeElimination::optimize(node* node) {
+    auto variableInfos = VariablesGrabber::getInfo(node, true);
+    return node->acceptResultVisitor(*this, variableInfos);
+}
+
 std::shared_ptr<node>
 DeadCodeElimination::visitIfStatement(IfStatement *s, std::unordered_map<std::string, VariableInfo> &t) {
     if (auto varExpr = dynamic_cast<VariableExpression *>(s->expression)) {

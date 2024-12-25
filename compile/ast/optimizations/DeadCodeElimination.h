@@ -4,6 +4,7 @@
 #include "../visitor/visitors/OptimizationVisitor.h"
 #include "Optimizable.h"
 #include "../visitor/visitors/VariablesGrabber.h"
+#include "../visitor/node.h"
 
 class DeadCodeElimination
         : public OptimizationVisitor<std::unordered_map<std::string, VariableInfo>>, public Optimizable {
@@ -13,10 +14,7 @@ private:
     int whileStatementEliminatedCount = 0;
     int assignmentExpressionEliminatedCount = 0;
 public:
-    std::shared_ptr<node> optimize(node node) override {
-        auto variableInfos = VariablesGrabber::getInfo(node, true);
-        return node->accept(*this, variableInfos);
-    }
+    std::shared_ptr<node> optimize(node *node) override;
 
     int OptimizationsCount() const;
 
