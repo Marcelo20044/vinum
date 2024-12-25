@@ -149,7 +149,41 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
     }
 
     llvm::Value *initialValue = generateExpressionIR(stmt->expression);
-    if (!initialValue) {
+    if (stmt->varType == ValueType::STRING) {
+        llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+        if (!gcMallocFunc) {
+            llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+                llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+                {llvm::Type::getInt64Ty(context)},
+                false
+            );
+            gcMallocFunc = llvm::Function::Create(
+                gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
+        }
+        llvm::Value *stringSize = nullptr;
+        if (initialValue) {
+            llvm::Function *strlenFunc = module->getFunction("strlen");
+            if (!strlenFunc) {
+                llvm::FunctionType *strlenType = llvm::FunctionType::get(
+                    llvm::Type::getInt64Ty(context),
+                    {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)},                    false                                                              // Не vararg
+                );
+                strlenFunc = llvm::Function::Create(strlenType, llvm::Function::ExternalLinkage, "strlen", module.get());
+            }
+            llvm::Value *strLen = builder.CreateCall(strlenFunc, {initialValue});
+            stringSize = builder.CreateAdd(
+                strLen,
+                llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), 1));
+        } else {
+            stringSize = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), 1);
+        }
+        llvm::Value *gcAlloc = builder.CreateCall(gcMallocFunc, {stringSize});
+        if (initialValue) {
+            llvm::Value *srcPtr = builder.CreatePointerCast(initialValue, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
+            builder.CreateMemCpy(gcAlloc, llvm::MaybeAlign(), srcPtr, llvm::MaybeAlign(), stringSize);
+        }
+        initialValue = gcAlloc;
+    } else if (!initialValue) {
         initialValue = llvm::Constant::getNullValue(type);
     }
 
@@ -261,9 +295,9 @@ void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
         llvm::AllocaInst *alloca = builder.CreateAlloca(varType, nullptr, initStmt->varName);
         namedValues[initStmt->varName] = {varType, alloca};
         builder.CreateStore(initValue, alloca);
-    } else {
+    } /*else {
         throw std::runtime_error("Expected InitializationStatement in for loop");
-    }
+    }*/
 
     llvm::Value *cond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(cond, loopBB, afterBB);
@@ -281,9 +315,9 @@ void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
             throw std::runtime_error("Variable '" + incrementStmt->variable + "' not found in for loop increment");
         }
         builder.CreateStore(incrementValue, varInfo.value);
-    } else {
+    } /*else {
         throw std::runtime_error("Expected AssignmentStatement in for loop increment");
-    }
+    }*/
 
     llvm::Value *updatedCond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(updatedCond, loopBB, afterBB);
@@ -450,27 +484,68 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
         throw std::runtime_error("Failed to generate IR for array size");
     }
 
+    // Генерация вызова GC_MALLOC для аллокации массива
+    llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+    if (!gcMallocFunc) {
+        llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+        llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+            {llvm::Type::getInt64Ty(context)}, // Принимает размер как аргумент
+            false
+        );
+        gcMallocFunc = llvm::Function::Create(
+            gcMallocType,
+            llvm::Function::ExternalLinkage,
+            "GC_malloc",
+            module.get()
+        );
+    }
+
+    // Вычисление размера памяти для массива
+    llvm::Value *elementSize = llvm::ConstantInt::get(
+        llvm::Type::getInt64Ty(context),
+        elementType->getPrimitiveSizeInBits() / 8
+    );
+
+    llvm::Value *totalSize = builder.CreateMul(
+        sizeValue,
+        elementSize,
+        "total_array_size"
+    );
+
+    // Вызов GC_MALLOC
+    llvm::Value *rawMemory = builder.CreateCall(gcMallocFunc, {totalSize}, "raw_memory");
+
+    // Приведение типа: [elementType]*
+    llvm::Value *typedMemory = builder.CreateBitCast(
+        rawMemory,
+        llvm::PointerType::getUnqual(elementType),
+        "typed_memory"
+    );
     llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, stmt->elements.size());
-    llvm::AllocaInst *arrayAlloca = builder.CreateAlloca(arrayType, nullptr, stmt->arrName);
 
-    arrayNamedValues[stmt->arrName] = {arrayType, elementType, arrayAlloca};
+    // Сохранение в именованном хранилище для дальнейшего использования
+    arrayNamedValues[stmt->arrName] = {arrayType, elementType, typedMemory};
 
+    // Инициализация элементов массива
     for (size_t i = 0; i < stmt->elements.size(); ++i) {
         llvm::Value *elementValue = generateExpressionIR(stmt->elements[i]);
         if (!elementValue) {
             throw std::runtime_error("Failed to generate IR for array element");
         }
 
+        // Получение указателя на i-й элемент массива
         llvm::Value *elementPtr = builder.CreateGEP(
-                arrayType,
-                arrayAlloca,
-                {llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-                 llvm::ConstantInt::get(context, llvm::APInt(32, i))},
-                "array_elem_ptr"
+            elementType,
+            typedMemory,
+            llvm::ConstantInt::get(context, llvm::APInt(64, i)),
+            "array_elem_ptr"
         );
+
+        // Сохранение значения в i-й элемент массива
         builder.CreateStore(elementValue, elementPtr);
     }
 }
+
 
 llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) {
     // Обработка бинарных выражений
@@ -575,12 +650,25 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         if (valueExpr->value->getType() == ValueType::STRING) {
             const std::string &strValue = valueExpr->value->asString();
 
-            llvm::Constant *strConst = llvm::ConstantDataArray::getString(context, strValue);
+            // Использование Boehm GC для выделения памяти под строку
+            llvm::Type *charType = llvm::Type::getInt8Ty(context);
+            llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
+            if (!gcMallocFunc) {
+                llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
+                    llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+                    {llvm::Type::getInt64Ty(context)},
+                    false
+                );
+                gcMallocFunc = llvm::Function::Create(
+                    gcMallocType, llvm::Function::ExternalLinkage, "GC_malloc", module.get());
+            }
+            llvm::Value *strLen = llvm::ConstantInt::get(context, llvm::APInt(32, strValue.size() + 1));
+            llvm::Value *mallocCall = builder.CreateCall(gcMallocFunc, {strLen}, "strAlloc");
+            llvm::Value *strConst = llvm::ConstantDataArray::getString(context, strValue);
 
-            llvm::AllocaInst *alloca = builder.CreateAlloca(strConst->getType(), nullptr, "str");
-            builder.CreateStore(strConst, alloca);
+            builder.CreateStore(strConst, mallocCall);
 
-            return builder.CreateBitCast(alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0));
+            return builder.CreateBitCast(mallocCall, llvm::PointerType::get(charType, 0));
         }
 
         throw std::runtime_error("Unsupported value type in ValueExpression");

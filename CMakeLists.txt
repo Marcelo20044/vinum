@@ -54,3 +54,4 @@ link_directories(/opt/homebrew/opt/bdw-gc/lib)
 
 target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib)
 find_library(GC_LIBRARY gc REQUIRED)
+target_link_libraries(vinum ${GC_LIBRARY})
