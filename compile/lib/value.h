@@ -19,6 +19,7 @@ class Value {
 
     static const std::unordered_map<std::string, ValueType> types;
     static const std::unordered_map<ValueType, std::string> reverseTypes;
+    static const std::unordered_map<ValueType, std::shared_ptr<Value>> zerValues;
 
 public:
     ValueType type;
@@ -53,6 +54,8 @@ public:
     static std::string getTypeString(ValueType type);
 
     static std::shared_ptr<Value> asType(std::shared_ptr<Value> value, ValueType type);
+
+    static std::shared_ptr<Value> getZeroValue(ValueType type);
 };
 
 #endif // VALUE_H

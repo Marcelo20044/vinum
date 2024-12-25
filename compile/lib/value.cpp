@@ -32,6 +32,15 @@ const std::unordered_map<ValueType, std::string> Value::reverseTypes = {
     {ValueType::VOID, "void"}
 };
 
+const std::unordered_map<ValueType, std::shared_ptr<Value>> Value::zerValues = {
+    {ValueType::SHORT, std::make_shared<ShortValue>(0)},
+    {ValueType::INT, std::make_shared<IntValue>(0)},
+    {ValueType::LONG, std::make_shared<LongValue>(0l)},
+    {ValueType::DOUBLE, std::make_shared<DoubleValue>(0.0)},
+    {ValueType::STRING, std::make_shared<StringValue>("")},
+    {ValueType::BOOLEAN, std::make_shared<BooleanValue>(false)},
+};
+
 bool Value::typeExists(const std::string &type) {
     return types.contains(type);
 }
@@ -71,4 +80,12 @@ std::shared_ptr<Value> Value::asType(std::shared_ptr<Value> value, ValueType typ
         }
         default: throw std::runtime_error("Cannot cast " + getTypeString(value->getType()) + " to " + getTypeString(type));
     }
+}
+
+std::shared_ptr<Value> Value::getZeroValue(ValueType type) {
+    auto it = zerValues.find(type);
+    if (it == zerValues.end()) {
+        throw std::invalid_argument("No zero value for type: " + getTypeString(type));
+    }
+    return it->second;
 }
