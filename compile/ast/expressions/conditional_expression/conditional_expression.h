@@ -28,6 +28,10 @@ public:
     std::shared_ptr<Value> eval() override;
 
     static std::string operatorToString(Operator op);
+
+    std::shared_ptr<node> accept(visitor *visitor) override {
+        return visitor->visitConditionalExpression(this);
+    }
 };
 
 #endif // CONDITIONAL_EXPRESSION_H
