@@ -1,7 +1,16 @@
-fun sdrink foo() {
+fun foo() {
+    pinta arr[5] = {1, 2, 3, 4, 5}
+    pinta arrr[5] = {1, 2, 3, 4, 5}
+    pinta arrrr[5] = {1, 2, 3, 4, 5}
+    pinta arrrrr[5] = {1, 2, 3, 4, 5}
+    pinta arrrrrr[5] = {1, 2, 3, 4, 5}
+    pinta arrrrrrr[5] = {1, 2, 3, 4, 5}
     sdrink s = "Hello, World!"
-    refill s
+    sdrink ss = "Hello, World!"
+    sdrink sss = "Hello, World!"
+    sdrink ssss = "Hello, World!"
+    sdrink sssss = "Hello, World!"
 }
-toast(foo())
+foo()
 sdrink ss = "Hello, World!2"
 toast(ss)

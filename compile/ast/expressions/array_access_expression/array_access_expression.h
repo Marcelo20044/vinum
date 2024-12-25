@@ -6,10 +6,10 @@
 #include "../../ast.h"
 
 class ArrayAccessExpression : public Expression {
+public:
     std::string variable;
     std::shared_ptr<Expression> index;
 
-public:
     ArrayAccessExpression(std::string variable, const std::shared_ptr<Expression> &index);
 
     std::shared_ptr<Value> eval() override;

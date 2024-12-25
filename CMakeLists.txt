@@ -30,6 +30,7 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/lib/short_value/short_value.cpp
         compile/lib/long_value/long_value.cpp
         compile/lib/boolean_value/boolean_value.cpp
+        compile/lib/array_value/array_value.cpp
         compile/lib/value.cpp
         compile/ast/statements/initialization_statement/initialization_statement.cpp
         compile/generator/generator.cpp
@@ -37,13 +38,10 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         runtime/vm/vm.cpp
         runtime/vm/vm.h
         runtime/jit/jit_compiler.h
-        compile/lib/array_value/array_value.cpp
-        compile/lib/array_value/array_value.h
-        compile/lib/array_value/array_value.h
-        compile/lib/array_value/array_value.cpp
         compile/ast/statements/array_assignment_statement/array_assignment_statement.cpp
-        compile/ast/expressions/array_access_expression/array_access_expression.h
+        compile/ast/statements/array_initialization_statement/array_initialization_statement.cpp
         compile/ast/expressions/array_access_expression/array_access_expression.cpp
+        compile/ast/statements/array_assignment_statement/array_assignment_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.cpp
         compile/ast/visitor/visitor.h
@@ -62,7 +60,8 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/ast/visitor/visitors/VariablesGrabber.h
         compile/ast/optimizations/DeadCodeElimination.cpp
         compile/ast/optimizations/DeadCodeElimination.h)
-
+        compile/ast/expressions/array_access_expression/array_access_expression.h
+)
 
 include_directories(/opt/homebrew/opt/llvm/include)
 include_directories(/opt/homebrew/opt/bdw-gc/include)
@@ -71,7 +70,5 @@ link_directories(/opt/homebrew/opt/llvm/lib)
 link_directories(/opt/homebrew/opt/bdw-gc/lib)
 
 target_link_libraries(vinum /opt/homebrew/opt/llvm/lib/libLLVM-19.dylib)
-
 find_library(GC_LIBRARY gc REQUIRED)
 target_link_libraries(vinum ${GC_LIBRARY})
-
