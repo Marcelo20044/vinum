@@ -4,12 +4,11 @@
 #include "../visitor/visitors/OptimizationVisitor.h"
 #include "Optimizable.h"
 
+
 class ConstantFolding : public OptimizationVisitor<nullptr_t>, public Optimizable {
 public:
 
-    std::shared_ptr<node> optimize(node *node) override {
-        return node->accept(*this);
-    }
+//    std::shared_ptr<node> optimize(node *node) override;
 
     std::shared_ptr<node> visitBinaryExpression(BinaryExpression *expression, nullptr_t) override;
 

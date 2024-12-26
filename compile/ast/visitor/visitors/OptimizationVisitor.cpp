@@ -21,7 +21,7 @@ template<typename T>
 std::shared_ptr<node>
 OptimizationVisitor<T>::OptimizationVisitor<T>::visitAssignmentStatement(AssignmentStatement *statement, T t) {
     auto variable = statement->variable;
-    auto optimizedExpr = statement->expression->accept(*this, t);
+    auto optimizedExpr = statement->expression->acceptResultVisitor(*this, t);
 
     if (optimizedExpr != statement->expression) {
         return std::make_shared<AssignmentStatement>(variable, optimizedExpr);
@@ -37,7 +37,7 @@ OptimizationVisitor<T>::OptimizationVisitor<T>::visitBlockStatement(BlockStateme
     bool changed = false;
 
     for (auto &stmt: statement->statements) {
-        auto optimized = stmt->accept(*this, t);
+        auto optimized = stmt->acceptResultVisitor(*this, t);
         if (optimized != stmt) {
             changed = true;
         }
@@ -61,10 +61,10 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitContinueStatement(ContinueSta
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitForStatement(ForStatement *statement, T t) {
-    auto init = statement->initialization->accept(*this, t);
-    auto term = statement->termination->accept(*this, t);
-    auto incr = statement->increment->accept(*this, t);
-    auto stmt = statement->statement->accept(*this, t);
+    auto init = statement->initialization->acceptResultVisitor(*this, t);
+    auto term = statement->termination->acceptResultVisitor(*this, t);
+    auto incr = statement->increment->acceptResultVisitor(*this, t);
+    auto stmt = statement->statement->acceptResultVisitor(*this, t);
 
     if (init != statement->initialization || term != statement->termination || incr != statement->increment ||
         stmt != statement->statement) {
@@ -76,7 +76,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitForStatement(ForStatement *st
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionDefineStatement(FunctionDefineStatement *statement, T t) {
-    auto body = statement->body->accept(*this, t);
+    auto body = statement->body->acceptResultVisitor(*this, t);
     if (body != statement->body) {
         return std::make_shared<FunctionDefineStatement>(statement->name, statement->returnType, statement->args, body);
     }
@@ -85,9 +85,9 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionDefineStatement(Funct
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitIfStatement(IfStatement *statement, T t) {
-    auto expr = statement->expression->accept(*this, t);
-    auto ifStmt = statement->ifStatement->accept(*this, t);
-    auto elseStmt = statement->elseStatement ? statement->elseStatement->accept(*this, t) : nullptr;
+    auto expr = statement->expression->acceptResultVisitor(*this, t);
+    auto ifStmt = statement->ifStatement->acceptResultVisitor(*this, t);
+    auto elseStmt = statement->elseStatement ? statement->elseStatement->acceptResultVisitor(*this, t) : nullptr;
 
     if (expr != statement->expression || ifStmt != statement->ifStatement || elseStmt != statement->elseStatement) {
         return std::make_shared<IfStatement>(expr, ifStmt, elseStmt);
@@ -98,8 +98,8 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitIfStatement(IfStatement *stat
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitBinaryExpression(BinaryExpression *expression, T t) {
-    auto optimizedLeft = expression->expr1->accept(*this, t);
-    auto optimizedRight = expression->expr2->accept(*this, t);
+    auto optimizedLeft = expression->expr1->acceptResultVisitor(*this, t);
+    auto optimizedRight = expression->expr2->acceptResultVisitor(*this, t);
 
     if (optimizedLeft != expression->expr1 || optimizedRight != expression->expr2) {
         return std::make_shared<BinaryExpression>(optimizedLeft, optimizedRight);
@@ -114,7 +114,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionalExpression(Function
     bool changed = false;
 
     for ( const auto &argument : result->arguments) {
-        auto expr = argument->accept(*this, t);
+        auto expr = argument->acceptResultVisitor(*this, t);
         if (expr != argument) {
             changed = true;
         }
@@ -126,7 +126,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitFunctionalExpression(Function
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitReturnStatement(ReturnStatement *statement, T t) {
-    auto expression = statement->expression->accept(*this, t);
+    auto expression = statement->expression->acceptResultVisitor(*this, t);
     if (expression != statement->expression) {
         return std::make_shared<ReturnStatement>(expression);
     }
@@ -135,7 +135,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitReturnStatement(ReturnStateme
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitPrintStatement(PrintStatement *statement, T t) {
-    auto expression = statement->expression->accept(*this, t);
+    auto expression = statement->expression->acceptResultVisitor(*this, t);
     if (expression != statement->expression) {
         return std::make_shared<PrintStatement>(expression);
     }
@@ -144,8 +144,8 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitPrintStatement(PrintStatement
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitConditionalExpression(ConditionalExpression *expression, T t) {
-    auto expr1 = expression->expr1->accept(*this, t);
-    auto expr2 = expression->expr2->accept(*this, t);
+    auto expr1 = expression->expr1->acceptResultVisitor(*this, t);
+    auto expr2 = expression->expr2->acceptResultVisitor(*this, t);
 
     if (expr1 != expression->expr1 || expr2 != expression->expr2) {
         return std::make_shared<ConditionalExpression>(expression->operation, expr1, expr2);
@@ -156,7 +156,7 @@ std::shared_ptr<node> OptimizationVisitor<T>::visitConditionalExpression(Conditi
 
 template<typename T>
 std::shared_ptr<node> OptimizationVisitor<T>::visitUnaryExpression(UnaryExpression *expression, T t) {
-    auto expr1 = expression->expr1->accept(*this, t);
+    auto expr1 = expression->expr1->acceptResultVisitor(*this, t);
     if (expr1 != expression->expr1) {
         return std::make_shared<UnaryExpression>(expression->operation, expr1);
     }

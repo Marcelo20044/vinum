@@ -32,5 +32,5 @@ VariableInfo VariablesGrabber::grabVariableInfo(std::unordered_map<std::string, 
 
 std::unordered_map<std::string, VariableInfo> VariablesGrabber::getInfo(node *node, bool grabModuleConstants) {
     const std::unordered_map<std::string, VariableInfo> variableInfos;
-    return node->accept(this, variableInfos)
+    return node->acceptResultVisitor(*this, variableInfos)
 }
