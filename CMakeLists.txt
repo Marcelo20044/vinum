@@ -44,14 +44,6 @@ add_executable(vinum main.cpp compile/lexer/lexer.cpp
         compile/ast/statements/array_assignment_statement/array_assignment_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.h
         compile/ast/statements/array_initialization_statement/array_initialization_statement.cpp
-        compile/ast/optimizations/ConstantFolding.cpp
-        compile/ast/optimizations/ConstantFolding.h
-        compile/ast/optimizations/ConstantPropagation.cpp
-        compile/ast/optimizations/ConstantPropagation.h
-        compile/ast/optimizations/DeadCodeElimination.cpp
-        compile/ast/optimizations/DeadCodeElimination.h
-        compile/ast/optimizations/Optimizable.h
-        compile/ast/optimizations/VariableInfo.h
         compile/ast/ast.h)
 
 
