@@ -59,6 +59,8 @@ class Parser {
 
     std::shared_ptr<Expression> primary();
 
+    std::shared_ptr<Expression> optimizeBinary(char operation, const std::shared_ptr<Expression>& left);
+
     int countForArgs();
 
 public:

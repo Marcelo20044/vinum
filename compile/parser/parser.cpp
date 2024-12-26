@@ -21,7 +21,6 @@
 #include "../ast/statements/array_assignment_statement/array_assignment_statement.h"
 #include "../ast/statements/array_initialization_statement/array_initialization_statement.h"
 #include "../ast/statements/initialization_statement/initialization_statement.h"
-#include "../lib/user_function/user_function.h"
 
 const std::shared_ptr<Token> Parser::EOF_TOKEN = std::make_shared<Token>(Token(TokenType::EOF_TOKEN, ""));
 
@@ -286,11 +285,21 @@ std::shared_ptr<Expression> Parser::additive() {
     auto result = multiplicative();
     while (true) {
         if (match(TokenType::PLUS)) {
-            result = std::make_shared<BinaryExpression>('+', result, multiplicative());
+            auto val = optimizeBinary('+', result);
+            if (val != nullptr) {
+                result = val;
+            } else {
+                result = std::make_shared<BinaryExpression>('+', result, multiplicative());
+            }
             continue;
         }
         if (match(TokenType::MINUS)) {
-            result = std::make_shared<BinaryExpression>('-', result, multiplicative());
+            auto val = optimizeBinary('-', result);
+            if (val != nullptr) {
+                result = val;
+            } else {
+                result = std::make_shared<BinaryExpression>('-', result, multiplicative());
+            }
             continue;
         }
         break;
@@ -403,4 +412,22 @@ std::shared_ptr<Token> Parser::get(int relativePosition) {
     size_t position = pos + relativePosition;
     if (position >= size) return EOF_TOKEN;
     return std::make_shared<Token>(tokens[position]);
+}
+
+std::shared_ptr<Expression> Parser::optimizeBinary(char operation, const std::shared_ptr<Expression>& left) {
+    if (auto leftValue = std::dynamic_pointer_cast<ValueExpression>(left)) {
+        if (match(TokenType::INT) || match(TokenType::DOUBLE) || match(TokenType::LONG)) {
+            double val1 = leftValue->eval()->asDouble();
+            double val2 = std::stod(tokens[pos - 1].text);
+            switch (operation) {
+                case '+':
+                    return std::make_shared<ValueExpression>(val1 + val2);
+                case '-':
+                    return std::make_shared<ValueExpression>(val1 - val2);
+                default:
+                    return nullptr;
+            }
+        }
+    }
+    return nullptr;
 }
