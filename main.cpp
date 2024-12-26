@@ -77,7 +77,7 @@ void printTokens(const std::vector<Token>& tokens) {
 
 void vm_exec(std::string IRFile)
 {
-    std::string functionName = "main";
+    std::string const MAIN_FUNC_NAME = "main";
 
     VM vm;
 
@@ -87,7 +87,7 @@ void vm_exec(std::string IRFile)
     {
         std::cerr << "Failed to load IR from file: " << IRFile << "\n";
     }
-    vm.execute(functionName);
+    vm.execute(MAIN_FUNC_NAME);
 }
 
 
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
     //
     // std::string filename = argv[1];
 
-    std::string filename = "../vinum_codes/era.vnm";
+    std::string filename = "../vinum_codes/ifelse.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;

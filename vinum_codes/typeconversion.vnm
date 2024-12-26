@@ -1,9 +1,0 @@
-stopka short = 5
-pinta int = short
-kega long = int
-
-toast("Преобразование short -> int:")
-toast(int)
-
-toast("Преобразование int -> long:")
-toast(long)

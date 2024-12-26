@@ -33,7 +33,7 @@ std::vector<Token> Lexer::tokenize() {
         else if (OPERATORS.contains(std::string(1, current))) {
             tokenizeOperator();
         } else {
-            next(); // Skip whitespace or unrecognized characters
+            next();
         }
     }
     return tokens;
@@ -139,7 +139,7 @@ void Lexer::tokenizeWord() {
 }
 
 void Lexer::tokenizeText() {
-    next(); // skip "
+    next(); // пропуск "
     std::string buffer;
 
     char current = peek(0);
@@ -160,7 +160,7 @@ void Lexer::tokenizeText() {
         current = next();
     }
 
-    next(); // skip closing "
+    next(); // пропуск второго "
     addToken(TokenType::TEXT, buffer);
 }
 

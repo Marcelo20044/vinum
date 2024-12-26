@@ -1,8 +1,0 @@
-fun bubble lfun (bubble a) {
-   refill a
-}
-
-toast(lfun(4.445) - 3.4234)
-
-kega a = 99999999999999
-toast(a)

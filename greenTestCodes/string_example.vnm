@@ -1,4 +1,0 @@
-sdrink a = "fuck"
-toast(a)
-sdrink b = a + " vinum"
-toast(b)

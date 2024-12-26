@@ -1,7 +1,0 @@
-pinta n = 10
-pinta arr[10]
-toast("initialized")
-pour pinta i = 0; i < n; i = i + 1 {
-    arr[i] = i
-    toast(arr[i])
-}
