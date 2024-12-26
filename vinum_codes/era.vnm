@@ -1,17 +1,24 @@
-pinta arr[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+pinta arr[100000]
+pinta n = 100000
+pour pinta st = 0; st < n; st = st + 1 {
+    arr[st] = 1
+}
 arr[0] = 0
 arr[1] = 0
-pinta n = 10
 pour pinta i = 2; i <= n; i = i + 1 {
     beef arr[i] == 1 {
-        beef i * i <= n {
-            pour pinta j = i * i; j <= n; j = j + i {
-                arr[j] = 0
+        beef i < 46340 {
+            beef i * i <= n {
+                pour pinta j = i * i; j <= n; j = j + i {
+                    arr[j] = 0
+                }
             }
         }
     }
 }
 
 pour pinta t = 0; t < n; t = t + 1 {
-    toast(arr[t])
+    beef arr[t] == 1 {
+        toast(t)
+    }
 }

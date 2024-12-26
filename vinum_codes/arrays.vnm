@@ -1,10 +1,12 @@
-pinta arr[5] = {5, 3, 4, 2, 1}
+pinta n = 10000
+pinta arr[10000]
 toast("before sort: ")
-pour pinta i = 0; i < 5; i = i + 1 {
+pour pinta i = n - 1; i >= 0; i = i - 1 {
+    arr[i] = i
     toast(arr[i])
 }
 
-pour pinta i = 1; i < 5; i = i + 1 {
+pour pinta i = 1; i < n; i = i + 1 {
     pour pinta j = i; j > 0; j = j - 1 {
         beef arr[j - 1] > arr[j] {
             pinta temp = arr[j - 1]
@@ -15,6 +17,6 @@ pour pinta i = 1; i < 5; i = i + 1 {
 }
 
 toast("after sort: ")
-pour pinta i = 0; i < 5; i = i + 1 {
+pour pinta i = 0; i < n; i = i + 1 {
     toast(arr[i])
 }

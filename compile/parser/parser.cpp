@@ -417,8 +417,8 @@ std::shared_ptr<Token> Parser::get(int relativePosition) {
 std::shared_ptr<Expression> Parser::optimizeBinary(char operation, const std::shared_ptr<Expression>& left) {
     if (auto leftValue = std::dynamic_pointer_cast<ValueExpression>(left)) {
         if (match(TokenType::INT) || match(TokenType::DOUBLE) || match(TokenType::LONG)) {
-            double val1 = leftValue->eval()->asDouble();
-            double val2 = std::stod(tokens[pos - 1].text);
+            int val1 = leftValue->eval()->asInt();
+            int val2 = std::stod(tokens[pos - 1].text);
             switch (operation) {
                 case '+':
                     return std::make_shared<ValueExpression>(val1 + val2);
