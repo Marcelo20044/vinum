@@ -93,10 +93,10 @@ void vm_exec(std::string IRFile)
 
 
 int main(int argc, char* argv[]) {
-//    std::string filename = "../vinum_codes/era.vnm";
-//    std::string filename = "../vinum_codes/arrays.vnm";
-//    std::string filename = "../vinum_codes/factorial.vnm";
-    std::string filename = "../vinum_codes/optimizations_tests.vnm";
+    std::string filename = "../vnm_bench/era.vnm";
+//    std::string filename = "../vnm_bench/arrays.vnm";
+//    std::string filename = "../vnm_bench/factorial.vnm";
+//    std::string filename = "../vinum_codes/optimizations_tests.vnm";
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
