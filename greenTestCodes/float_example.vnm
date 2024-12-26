@@ -1,5 +1,0 @@
-pinta b;
-b = 2;
-pour b = 0; b < 3; b = b + 1 {
-    toast("vinum1\n");
-}
