@@ -33,7 +33,7 @@ std::vector<Token> Lexer::tokenize() {
         else if (OPERATORS.contains(std::string(1, current))) {
             tokenizeOperator();
         } else {
-            next(); // Skip whitespace or unrecognized characters
+            next();
         }
     }
     return tokens;

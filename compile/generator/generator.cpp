@@ -83,8 +83,6 @@ void Generator::generateBlockIR(std::shared_ptr<BlockStatement> block) {
             generateArrayInitializationIR(arrayInitStmt);
         } else if (auto arrayAssignStmt = std::dynamic_pointer_cast<ArrayAssignmentStatement>(statement)) {
             generateArrayAssignmentIR(arrayAssignStmt);
-        } else {
-            // Добавьте обработку других типов Statement
         }
     }
 }
@@ -111,11 +109,6 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
 
     if (stmt->varType == ValueType::INT) {
         type = llvm::Type::getInt32Ty(context);
-//        auto valExpr = std::dynamic_pointer_cast<ValueExpression>(stmt->expression);
-//        if (valExpr->value->getType() != ValueType::LONG) {
-//            valExpr->value->type = ValueType::LONG;
-//        }
-//        stmt->expression = valExpr;
     } else if (stmt->varType == ValueType::DOUBLE) {
         type = llvm::Type::getDoubleTy(context);
     } else if (stmt->varType == ValueType::LONG) {
@@ -199,7 +192,6 @@ void Generator::generateInitializationIR(std::shared_ptr<InitializationStatement
 void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
     llvm::Value *value = generateExpressionIR(stmt->expression);
 
-    // Убедимся, что printf объявлен
     llvm::Function *printfFunc = module->getFunction("printf");
     if (!printfFunc) {
         llvm::FunctionType *printfType = llvm::FunctionType::get(
@@ -210,7 +202,6 @@ void Generator::generatePrintIR(std::shared_ptr<PrintStatement> &stmt) {
         printfFunc = llvm::Function::Create(printfType, llvm::Function::ExternalLinkage, "printf", module.get());
     }
 
-    // Форматная строка для printf
     llvm::Value *formatStr;
 
     if (value->getType()->isIntegerTy()) {
@@ -284,20 +275,16 @@ llvm::Type* Generator::resolveLLVMType(ValueType type) {
 void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
     llvm::Function *function = builder.GetInsertBlock()->getParent();
 
-    // Создаём базовые блоки: для цикла (loop) и после цикла (afterloop)
     llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(context, "loop", function);
     llvm::BasicBlock *afterBB = llvm::BasicBlock::Create(context, "afterloop");
 
-    // Генерация кода инициализации (stmt->initialization)
     if (auto initStmt = std::dynamic_pointer_cast<InitializationStatement>(stmt->initialization)) {
         llvm::Value *initValue = generateExpressionIR(initStmt->expression);
         llvm::Type *varType = resolveLLVMType(initStmt->varType);
         llvm::AllocaInst *alloca = builder.CreateAlloca(varType, nullptr, initStmt->varName);
         namedValues[initStmt->varName] = {varType, alloca};
         builder.CreateStore(initValue, alloca);
-    } /*else {
-        throw std::runtime_error("Expected InitializationStatement in for loop");
-    }*/
+    }
 
     llvm::Value *cond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(cond, loopBB, afterBB);
@@ -315,9 +302,7 @@ void Generator::generateForIR(std::shared_ptr<ForStatement> &stmt) {
             throw std::runtime_error("Variable '" + incrementStmt->variable + "' not found in for loop increment");
         }
         builder.CreateStore(incrementValue, varInfo.value);
-    } /*else {
-        throw std::runtime_error("Expected AssignmentStatement in for loop increment");
-    }*/
+    }
 
     llvm::Value *updatedCond = generateExpressionIR(stmt->termination);
     builder.CreateCondBr(updatedCond, loopBB, afterBB);
@@ -407,7 +392,6 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
         builder.CreateStore(&arg, alloca);
 
         if (stmt->args[idx]->type == ValueType::ARRAY) {
-            //TODO: жёсткий костыль
             arrayNamedValues[arg.getName().str()] = {llvm::ArrayType::get(llvm::Type::getInt32Ty(context), 5), llvm::Type::getInt32Ty(context), alloca};
         } else {
             namedValues[arg.getName().str()] = {arg.getType(), alloca};
@@ -417,7 +401,6 @@ void Generator::generateFunctionDefineIR(std::shared_ptr<FunctionDefineStatement
 
     generateBlockIR(std::dynamic_pointer_cast<BlockStatement>(stmt->body));
 
-    // Ensure all basic blocks are terminated correctly
     for (auto &bb : *function) {
         if (!bb.getTerminator()) {
             builder.SetInsertPoint(&bb);
@@ -484,12 +467,11 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
         throw std::runtime_error("Failed to generate IR for array size");
     }
 
-    // Генерация вызова GC_MALLOC для аллокации массива
     llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
     if (!gcMallocFunc) {
         llvm::FunctionType *gcMallocType = llvm::FunctionType::get(
         llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
-            {llvm::Type::getInt64Ty(context)}, // Принимает размер как аргумент
+            {llvm::Type::getInt64Ty(context)},
             false
         );
         gcMallocFunc = llvm::Function::Create(
@@ -500,7 +482,6 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
         );
     }
 
-    // Вычисление размера памяти для массива
     llvm::Value *elementSize = llvm::ConstantInt::get(
         llvm::Type::getInt64Ty(context),
         elementType->getPrimitiveSizeInBits() / 8
@@ -512,10 +493,8 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
         "total_array_size"
     );
 
-    // Вызов GC_MALLOC
     llvm::Value *rawMemory = builder.CreateCall(gcMallocFunc, {totalSize}, "raw_memory");
 
-    // Приведение типа: [elementType]*
     llvm::Value *typedMemory = builder.CreateBitCast(
         rawMemory,
         llvm::PointerType::getUnqual(elementType),
@@ -523,17 +502,14 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
     );
     llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, stmt->elements.size());
 
-    // Сохранение в именованном хранилище для дальнейшего использования
     arrayNamedValues[stmt->arrName] = {arrayType, elementType, typedMemory};
 
-    // Инициализация элементов массива
     for (size_t i = 0; i < stmt->elements.size(); ++i) {
         llvm::Value *elementValue = generateExpressionIR(stmt->elements[i]);
         if (!elementValue) {
             throw std::runtime_error("Failed to generate IR for array element");
         }
 
-        // Получение указателя на i-й элемент массива
         llvm::Value *elementPtr = builder.CreateGEP(
             elementType,
             typedMemory,
@@ -541,14 +517,12 @@ void Generator::generateArrayInitializationIR(std::shared_ptr<ArrayInitializatio
             "array_elem_ptr"
         );
 
-        // Сохранение значения в i-й элемент массива
         builder.CreateStore(elementValue, elementPtr);
     }
 }
 
 
 llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) {
-    // Обработка бинарных выражений
     if (auto binExpr = std::dynamic_pointer_cast<BinaryExpression>(expr)) {
         llvm::Value *left = generateExpressionIR(binExpr->expr1);
         llvm::Value *right = generateExpressionIR(binExpr->expr2);
@@ -591,7 +565,6 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
             }
     }
 
-    // Обработка унарных выражений
     if (auto unaryExpr = std::dynamic_pointer_cast<UnaryExpression>(expr)) {
         llvm::Value *operand = generateExpressionIR(unaryExpr->expr1);
 
@@ -607,7 +580,6 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         }
     }
 
-    // Обработка условных выражений
     if (auto condExpr = std::dynamic_pointer_cast<ConditionalExpression>(expr)) {
         llvm::Value *left = generateExpressionIR(condExpr->expr1);
         llvm::Value *right = generateExpressionIR(condExpr->expr2);
@@ -650,7 +622,6 @@ llvm::Value* Generator::generateExpressionIR(std::shared_ptr<Expression> &expr) 
         if (valueExpr->value->getType() == ValueType::STRING) {
             const std::string &strValue = valueExpr->value->asString();
 
-            // Использование Boehm GC для выделения памяти под строку
             llvm::Type *charType = llvm::Type::getInt8Ty(context);
             llvm::Function *gcMallocFunc = module->getFunction("GC_malloc");
             if (!gcMallocFunc) {
