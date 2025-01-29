@@ -1,0 +1,27 @@
+### Our alcohol-oriented programming language
+
+Array sorting example:
+```
+pinta n = 10000
+pinta arr[10000]
+toast("before sort: ")
+pour pinta i = n - 1; i >= 0; i = i - 1 {
+    arr[i] = i
+    toast(arr[i])
+}
+
+pour pinta i = 1; i < n; i = i + 1 {
+    pour pinta j = i; j > 0; j = j - 1 {
+        beef arr[j - 1] > arr[j] {
+            pinta temp = arr[j - 1]
+            arr[j - 1] = arr[j]
+            arr[j] = temp
+        }
+    }
+}
+
+toast("after sort: ")
+pour pinta i = 0; i < n; i = i + 1 {
+    toast(arr[i])
+}
+```
