@@ -25,56 +25,6 @@
 #include <iostream>
 #include <llvm/IR/Module.h>
 
-std::string tokenTypeToString(const TokenType type)
-{
-    switch (type)
-    {
-        case TokenType::NUMBER: return "NUMBER";
-        case TokenType::WORD: return "WORD";
-        case TokenType::TEXT: return "TEXT";
-        case TokenType::TOAST: return "TOAST"; // print
-        case TokenType::BEEF: return "IF";
-        case TokenType::BELLS: return "ELSE";
-        case TokenType::POUR: return "DRINK"; // for
-        case TokenType::STOP: return "STOP"; // break
-        case TokenType::NEXT: return "NEXT"; // continue
-        case TokenType::FUN: return "FUN"; // func
-        case TokenType::REFILL: return "SOBER"; // return
-        case TokenType::PLUS: return "PLUS";
-        case TokenType::MINUS: return "MINUS";
-        case TokenType::STAR: return "STAR";
-        case TokenType::SLASH: return "SLASH";
-        case TokenType::EQ: return "EQ";
-        case TokenType::EQEQ: return "EQEQ";
-        case TokenType::EXCL: return "EXCL";
-        case TokenType::EXCLEQ: return "EXCLEQ";
-        case TokenType::LT: return "LT";
-        case TokenType::LTEQ: return "LTEQ";
-        case TokenType::GT: return "GT";
-        case TokenType::GTEQ: return "GTEQ";
-        case TokenType::BAR: return "BAR";
-        case TokenType::BARBAR: return "BARBAR";
-        case TokenType::AMP: return "AMP";
-        case TokenType::AMPAMP: return "AMPAMP";
-        case TokenType::LPAREN: return "LPAREN";
-        case TokenType::RPAREN: return "RPAREN";
-        case TokenType::LBRACKET: return "LBRACKET";
-        case TokenType::RBRACKET: return "RBRACKET";
-        case TokenType::LBRACE: return "LBRACE";
-        case TokenType::RBRACE: return "RBRACE";
-        case TokenType::COMMA: return "COMMA";
-        case TokenType::EOF_TOKEN: return "EOF_TOKEN";
-        default: return "UNKNOWN";
-    }
-}
-
-void printTokens(const std::vector<Token>& tokens) {
-    for (const auto& token : tokens) {
-        std::cout << "Token: { Type: " << tokenTypeToString(token.type) << ", Text: \"" << token.text << "\" }" << std::endl;
-    }
-}
-
-
 void vm_exec(std::string IRFile)
 {
     std::string const MAIN_FUNC_NAME = "main";
@@ -90,18 +40,14 @@ void vm_exec(std::string IRFile)
     vm.execute(MAIN_FUNC_NAME);
 }
 
-
-
 int main(int argc, char* argv[]) {
 
-    // if (argc < 2) {
-    //     std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
-    //     return 1;
-    // }
-    //
-    // std::string filename = argv[1];
-
-    std::string filename = "../vinum_codes/ifelse.vnm";
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <file.vnm>" << std::endl;
+        return 1;
+    }
+    
+    std::string filename = argv[1];
 
     if (filename.substr(filename.find_last_of('.')) != ".vnm") {
         std::cerr << "Error: File must have a .vinum extension." << std::endl;
@@ -126,7 +72,6 @@ int main(int argc, char* argv[]) {
     try {
         Lexer lexer(input);
         tokens = lexer.tokenize();
-        // printTokens(tokens);
     } catch (const std::exception& ex) {
         std::cerr << "Lexer error: " << ex.what() << std::endl;
         return 1;
@@ -144,12 +89,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    /*try {
-        block->execute();
-    } catch (const std::exception& ex) {
-        std::cerr << "Execution error: " << ex.what() << std::endl;
-    }*/
-
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder(context);
     llvm::Module module("main_module", context);
@@ -164,6 +103,5 @@ int main(int argc, char* argv[]) {
     llvm::sys::DynamicLibrary::LoadLibraryPermanently("libgc.so");
 
     vm_exec("../cmake-build-debug/output.ll");
-    // vm_exec("../cmake-build-debug/gctest.ll");
 }
 
