@@ -1,14 +1,17 @@
-### Our alcohol-oriented programming language
+## Our alcohol-oriented programming language
 
+#### Executes .vnm files
 Array sorting example:
 ```
-pinta n = 10000
-pinta arr[10000]
-toast("before sort: ")
-pour pinta i = n - 1; i >= 0; i = i - 1 {
-    arr[i] = i
-    toast(arr[i])
+fun printArr(pinta arr[]) {
+    pour pinta i = 0; i < len(arr); i = i + 1 {
+        toast(arr[i] + " ")
+    }
 }
+
+pinta arr[5] = {2, 5, 1, 3, 4} 
+toast("before sort: ")
+printArr(arr)
 
 pour pinta i = 1; i < n; i = i + 1 {
     pour pinta j = i; j > 0; j = j - 1 {
@@ -20,8 +23,7 @@ pour pinta i = 1; i < n; i = i + 1 {
     }
 }
 
-toast("after sort: ")
-pour pinta i = 0; i < n; i = i + 1 {
-    toast(arr[i])
-}
+toast("\nafter sort: ")
+printArr(arr)
 ```
+have fun:)
