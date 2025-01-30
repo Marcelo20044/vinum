@@ -46,7 +46,7 @@ printArr(arr)
 
 ## Тесты
 ### Task 1: Factorial Calculation (Recursive Function)
-Obiective: Implement a function that calculates the factorial of a given number using recursion.
+Objective: Implement a function that calculates the factorial of a given number using recursion.
 Purpose: Test recursive function calls, stack management, and handling of large numbers.
 Benchmark: Measure the execution time for calculating the factorial of numbers like 10! or 20!.
 
